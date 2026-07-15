@@ -213,6 +213,15 @@
   .pill{display:inline-block; font-size:11px; font-weight:700; padding:3px 9px; border-radius:100px;}
   .pill.ok{background:var(--green-050); color:var(--green-600);}
   .pill.no{color:var(--ink-300);}
+
+  #pendWeekTable{min-width:0;}
+  #pendWeekTable thead th{background:var(--navy-950); color:#cdd7e8;}
+  #pendWeekTable .pw-count{font-weight:800; display:inline-block; min-width:34px; padding:3px 10px; border-radius:100px;}
+  #pendWeekTable .pw-high{background:var(--red-050); color:var(--red-600);}
+  #pendWeekTable .pw-mid{background:var(--amber-050); color:var(--amber-600);}
+  #pendWeekTable .pw-zero{background:var(--green-050); color:var(--green-600);}
+  #pendWeekTable tr.row-high td:first-child{position:relative;}
+  #pendWeekTable tr.row-high td:first-child::before{content:""; position:absolute; right:0; top:0; bottom:0; width:3px; background:var(--red-600);}
   tfoot td{
     padding:13px 10px; text-align:center; font-weight:800; background:#f3f5f9;
     border-top:2px solid var(--navy-900); color:var(--navy-950);
@@ -294,6 +303,29 @@ padding:18px 24px;margin-bottom:22px;box-shadow:var(--shadow-md);}
     </div>
   </div>
 
+  <div class="section-title"><h2>مدیران با عدم تعیین‌تکلیف بیش از یک هفته</h2><span class="badge" id="pendWeekBadge">هشدار</span></div>
+  <p class="section-note">تعداد شعبی که مدیر منطقه بیش از یک هفته درباره‌شان تصمیم‌گیری نکرده — به تفکیک منطقه، مدیر منطقه و مدیر اجرایی. مرتب‌شده از بیشترین به کمترین.</p>
+  <div class="card" style="margin-bottom:8px;">
+    <div class="table-wrap" style="box-shadow:none; border:none;">
+      <div class="table-scroll">
+      <table id="pendWeekTable">
+        <thead>
+          <tr>
+            <th style="text-align:right; padding-right:20px;">منطقه</th>
+            <th>مدیر منطقه</th>
+            <th>مدیر اجرایی</th>
+            <th>تعداد &gt; ۱ هفته</th>
+          </tr>
+        </thead>
+        <tbody id="pendWeekBody"></tbody>
+        <tfoot>
+          <tr id="pendWeekFoot"></tr>
+        </tfoot>
+      </table>
+      </div>
+    </div>
+  </div>
+
   <div class="section-title"><h2>عملکرد مدیران اجرایی</h2><span class="badge">مدیران اجرایی</span></div>
   <div class="mgr-grid" id="mgrGrid"></div>
 
@@ -363,6 +395,61 @@ var COL = {
   toKhordad:6, opened:7, summerGoal:8, summerContracts:9,
   achievement:10, total:11, campaign:12
 };
+
+/* ============ DATA SOURCE 2: GOOGLE SHEET — عدم تعیین‌تکلیف بیش از یک هفته (sheet2) ============ */
+// TODO: لینک CSV شیت ۲ رو اینجا جایگزین کن (راهنما: File > Share > دسترسی «هرکسی با لینک» سپس
+// https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=YOUR_GID2)
+var SHEET2_CSV_URL = "PASTE_SHEET2_CSV_LINK_HERE";
+
+// نگاشت ستون‌های شیت ۲: A:منطقه B:مدیر منطقه C:مدیر اجرایی D:تعداد عدم‌تعیین‌تکلیف بیش از یک هفته
+var COL2 = { region:0, manager:1, exec:2, pendWeek:3 };
+
+/* دیتای پشتیبان شیت ۲ (fallback) — از اسکرین‌شات ارسالی */
+var FALLBACK_ROWS2 = [
+  {region:"شرق فارس", manager:"بهادری مرتضی", exec:"حسینی نسب عماد", pendWeek:13},
+  {region:"کرمانشاه", manager:"مرزبان یزدان", exec:"محسنی مجید", pendWeek:5},
+  {region:"سیستان و بلوچستان", manager:"اثنی عشری حسین", exec:"حسینی نسب عماد", pendWeek:8},
+  {region:"غرب اصفهان", manager:"بهنان مسعود", exec:"محالی میثم", pendWeek:8},
+  {region:"غرب فارس", manager:"عابد مجتبی", exec:"حسینی نسب عماد", pendWeek:7},
+  {region:"البرز/الوند", manager:"سلمان زاده کیوان", exec:"نوری فرید", pendWeek:4},
+  {region:"مازندران", manager:"اسگندری حجت", exec:"محالی میثم", pendWeek:3},
+  {region:"غرب خوزستان", manager:"بختیاریان رضا", exec:"محسنی مجید", pendWeek:3},
+  {region:"جنوب آذربایجان", manager:"وجدان رضا", exec:"هم مسلک بهمن", pendWeek:2},
+  {region:"ایلام/لرستان", manager:"فارسی علی", exec:"محسنی مجید", pendWeek:2},
+  {region:"کرمان", manager:"اتحاد مصطفی", exec:"حسینی نسب عماد", pendWeek:2},
+  {region:"شرق گیلان", manager:"پاشایی بهنام", exec:"هم مسلک بهمن", pendWeek:1},
+  {region:"ری/سمنان", manager:"پوررجبی امید", exec:"نوری فرید", pendWeek:1},
+  {region:"هرمزگان و جنوب کرمان", manager:"حسن زاده سید امین", exec:"حسینی نسب عماد", pendWeek:1},
+  {region:"شرق اصفهان", manager:"منجزی وند رضا", exec:"محالی میثم", pendWeek:1},
+  {region:"غرب تهران", manager:"جمشیدی محمد", exec:"نوری فرید", pendWeek:1},
+  {region:"شرق تهران", manager:"جعفری رضا", exec:"نوری فرید", pendWeek:1},
+  {region:"آذربایجان شرقی", manager:"عزت شعار علی", exec:"هم مسلک بهمن", pendWeek:0},
+  {region:"شرق خوزستان", manager:"علی محمدی ساسان", exec:"محسنی مجید", pendWeek:0},
+  {region:"آذربایجان غربی", manager:"صادق سعیدی", exec:"هم مسلک بهمن", pendWeek:0},
+  {region:"همدان", manager:"قدرتی میلاد", exec:"محسنی مجید", pendWeek:0},
+  {region:"خراسان", manager:"کلالی مهیار", exec:"محالی میثم", pendWeek:0},
+  {region:"اسلامشهر/ساوه", manager:"دشت افکن مهدی", exec:"هم مسلک بهمن", pendWeek:0},
+  {region:"غرب گیلان", manager:"دشت افکن مهدی", exec:"هم مسلک بهمن", pendWeek:0}
+];
+
+function mapRowsToData2(csvRows){
+  if(!csvRows || !csvRows.length) throw new Error('empty');
+  var out = [];
+  for(var i=1;i<csvRows.length;i++){ // ردیف اول = هدر
+    var r = csvRows[i];
+    if(!r || !r[COL2.region] || !String(r[COL2.region]).trim()) continue;
+    out.push({
+      region: String(r[COL2.region]).trim(),
+      manager: String(r[COL2.manager]||'').trim(),
+      exec: String(r[COL2.exec]||'').trim(),
+      pendWeek: toNum(r[COL2.pendWeek])
+    });
+  }
+  if(!out.length) throw new Error('no rows');
+  return out;
+}
+
+var rows2 = FALLBACK_ROWS2.slice();
 
 function toNum(v){
   var n = parseFloat(String(v==null?'':v).replace(/[,٪%]/g,'').trim());
@@ -614,6 +701,58 @@ function renderManagers(){
   }
 }
 
+/* ============ PENDING > 1 WEEK TABLE (sheet2) ============ */
+function renderPendingWeekTable(){
+  var body = document.getElementById('pendWeekBody');
+  var foot = document.getElementById('pendWeekFoot');
+  var badge = document.getElementById('pendWeekBadge');
+  if(!body || !foot) return;
+
+  var data = rows2.slice().sort(function(a,b){ return b.pendWeek - a.pendWeek; });
+
+  var html = '';
+  for(var i=0;i<data.length;i++){
+    var r = data[i];
+    var cls = r.pendWeek>=8 ? 'pw-high' : (r.pendWeek>=3 ? 'pw-mid' : 'pw-zero');
+    var rowCls = r.pendWeek>=8 ? 'row-high' : '';
+    html += '<tr class="'+rowCls+'">'+
+      '<td>'+r.region+'</td>'+
+      '<td>'+r.manager+'</td>'+
+      '<td>'+r.exec+'</td>'+
+      '<td><span class="pw-count num '+cls+'">'+r.pendWeek+'</span></td>'+
+    '</tr>';
+  }
+  body.innerHTML = html || '<tr><td colspan="4" style="padding:30px; color:var(--ink-500);">داده‌ای موجود نیست</td></tr>';
+
+  var totalPend = sum(data,'pendWeek');
+  foot.innerHTML =
+    '<td>جمع ('+data.length+' منطقه)</td>'+
+    '<td></td><td></td>'+
+    '<td class="num">'+totalPend+'</td>';
+
+  if(badge) badge.textContent = totalPend + ' شعبه معلق بیش از ۱ هفته';
+}
+
+function loadDataFromSheet2(){
+  if(!SHEET2_CSV_URL || SHEET2_CSV_URL.indexOf('PASTE_') === 0){
+    renderPendingWeekTable(); // از fallback استفاده می‌شود تا لینک واقعی جایگزین شود
+    return;
+  }
+  var bust = (SHEET2_CSV_URL.indexOf('?')>-1 ? '&' : '?') + 'cachebust=' + Date.now();
+  fetch(SHEET2_CSV_URL + bust, {cache:'no-store'})
+    .then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.text(); })
+    .then(function(csvText){
+      var parsed = Papa.parse(csvText.trim(), {skipEmptyLines:true});
+      rows2 = mapRowsToData2(parsed.data);
+      renderPendingWeekTable();
+    })
+    .catch(function(err){
+      console.error('خطا در دریافت شیت ۲:', err);
+      if(!rows2 || !rows2.length){ rows2 = FALLBACK_ROWS2.slice(); }
+      renderPendingWeekTable();
+    });
+}
+
 /* ============ TABLE ============ */
 var sortKey = 'total', sortDir = -1, activeFilter = 'all', activeMgr = 'all', searchTerm = '';
 
@@ -707,7 +846,9 @@ function bindEvents(){
 function init(){
   try{ bindEvents(); }catch(e){ console.error('Bind events error', e); }
   loadDataFromSheet();
+  loadDataFromSheet2();
   setInterval(loadDataFromSheet, AUTO_REFRESH_MS);
+  setInterval(loadDataFromSheet2, AUTO_REFRESH_MS);
 }
 
 if(document.readyState === 'loading'){
