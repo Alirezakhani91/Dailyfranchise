@@ -178,7 +178,6 @@
     backdrop-filter:blur(2px); box-shadow:none;
   }
   .exec-panel .mgr-card .avatar{background:var(--gold-500); color:var(--navy-950);}
-  .exec-panel .mgr-card .mname{color:#fff;}
   .exec-panel .mgr-card .mrole{color:#9fb0c8;}
   .exec-panel .mgr-card .mgr-stats{border-top:1px solid rgba(255,255,255,.12);}
   .exec-panel .mgr-card .mstat .mv{color:#fff;}
@@ -186,10 +185,11 @@
   .exec-panel .mgr-card .mstat.gold .mv{color:var(--gold-400);}
   .exec-panel .mgr-card:hover{border-color:rgba(220,178,79,.5); transform:translateY(-2px); transition:.15s;}
   .mgr-card .avatar{
-    width:38px; height:38px; border-radius:10px; background:var(--navy-900); color:var(--gold-400);
-    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; margin-bottom:12px;
+    width:100%; height:auto; min-height:38px; border-radius:10px; background:var(--navy-900); color:var(--gold-400);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    font-weight:800; font-size:14.5px; line-height:1.3; padding:9px 8px; margin-bottom:12px;
+    box-sizing:border-box;
   }
-  .mgr-card .mname{font-size:14px; font-weight:800; color:var(--navy-950); margin-bottom:2px;}
   .mgr-card .mrole{font-size:11.5px; color:var(--ink-500); margin-bottom:14px;}
   .mgr-stats{display:flex; justify-content:space-between; border-top:1px dashed var(--line); padding-top:10px;}
   .mgr-stats .mstat .mv{font-size:16px; font-weight:800; color:var(--navy-950);}
@@ -709,8 +709,7 @@ function renderManagers(){
   for(var j=0;j<mgrData.length;j++){
     var m = mgrData[j];
     html += '<div class="mgr-card">'+
-      '<div class="avatar">'+m.initials+'</div>'+
-      '<div class="mname">'+m.name+'</div>'+
+      '<div class="avatar">'+m.name+'</div>'+
       '<div class="mrole">'+m.regions+' منطقه تحت پوشش</div>'+
       '<div class="mgr-stats">'+
         '<div class="mstat"><div class="mv num">'+m.calls+'</div><div class="ml">تماس</div></div>'+
