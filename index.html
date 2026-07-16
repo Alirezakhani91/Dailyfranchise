@@ -154,6 +154,37 @@
   /* Exec manager cards */
   .mgr-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:14px;}
   .mgr-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:var(--shadow-sm);}
+
+  /* ===== پنل متمایز مدیران اجرایی ===== */
+  .exec-panel{
+    background:linear-gradient(155deg, var(--navy-950) 0%, var(--navy-900) 55%, var(--navy-800) 100%);
+    border-radius:22px; padding:26px 26px 22px; margin-bottom:28px;
+    border:1px solid var(--navy-800); position:relative; overflow:hidden;
+    box-shadow:0 18px 40px -18px rgba(10,22,40,.55);
+  }
+  .exec-panel::before{
+    content:""; position:absolute; inset:0 0 auto 0; height:4px;
+    background:linear-gradient(90deg, var(--gold-500), var(--gold-400), var(--gold-500));
+  }
+  .exec-panel .section-title{margin-bottom:18px;}
+  .exec-panel .section-title h2{color:#fff;}
+  .exec-panel .section-title::after{background:rgba(255,255,255,.14);}
+  .exec-panel .section-title .badge{
+    background:rgba(220,178,79,.16); border:1px solid rgba(220,178,79,.4); color:var(--gold-400);
+  }
+  .exec-panel .crown{margin-left:8px; font-size:15px;}
+  .exec-panel .mgr-card{
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
+    backdrop-filter:blur(2px); box-shadow:none;
+  }
+  .exec-panel .mgr-card .avatar{background:var(--gold-500); color:var(--navy-950);}
+  .exec-panel .mgr-card .mname{color:#fff;}
+  .exec-panel .mgr-card .mrole{color:#9fb0c8;}
+  .exec-panel .mgr-card .mgr-stats{border-top:1px solid rgba(255,255,255,.12);}
+  .exec-panel .mgr-card .mstat .mv{color:#fff;}
+  .exec-panel .mgr-card .mstat .ml{color:#8ea0ba;}
+  .exec-panel .mgr-card .mstat.gold .mv{color:var(--gold-400);}
+  .exec-panel .mgr-card:hover{border-color:rgba(220,178,79,.5); transform:translateY(-2px); transition:.15s;}
   .mgr-card .avatar{
     width:38px; height:38px; border-radius:10px; background:var(--navy-900); color:var(--gold-400);
     display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; margin-bottom:12px;
@@ -285,6 +316,11 @@ padding:18px 24px;margin-bottom:22px;box-shadow:var(--shadow-md);}
   <div class="dashboard-header"><h2>خلاصهٔ عملکرد کلی</h2><span class="badge">از ابتدای سال تا کنون</span></div>
   <div class="kpi-grid" id="kpiGrid"></div>
 
+  <div class="exec-panel">
+    <div class="section-title"><h2><span class="crown">👑</span>عملکرد مدیران اجرایی</h2><span class="badge">مهم‌ترین سطح مدیریتی</span></div>
+    <div class="mgr-grid" id="mgrGrid"></div>
+  </div>
+
   <div class="section-title"><h2>عملکرد قرارداد و کمپین تابستان</h2><span class="badge">مهم‌ترین شاخص: قرارداد</span></div>
   <div class="grid-2">
     <div class="card">
@@ -302,9 +338,6 @@ padding:18px 24px;margin-bottom:22px;box-shadow:var(--shadow-md);}
       <div class="camp-list" id="campList"></div>
     </div>
   </div>
-
-  <div class="section-title"><h2>عملکرد مدیران اجرایی</h2><span class="badge">مدیران اجرایی</span></div>
-  <div class="mgr-grid" id="mgrGrid"></div>
 
   <div class="section-title"><h2>مدیران با عدم تعیین‌تکلیف بیش از یک هفته</h2><span class="badge" id="pendWeekBadge">هشدار</span></div>
   <p class="section-note">تعداد شعبی که مدیر منطقه بیش از یک هفته درباره‌شان تصمیم‌گیری نکرده — به تفکیک منطقه، مدیر منطقه و مدیر اجرایی. مرتب‌شده از بیشترین به کمترین.</p>
