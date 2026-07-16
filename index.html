@@ -384,7 +384,7 @@ padding:18px 24px;margin-bottom:22px;box-shadow:var(--shadow-md);}
 
 /* ============ DATA SOURCE: GOOGLE SHEET (زنده) ============ */
 // لینک Publish to web شما، تبدیل‌شده به فرمت CSV
-var SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYvZrm38gBjQPT5Gj_N1OG_q9ZCp4fsIl5DII3TIJeAzzyQXFMUM8GvnY94V04dLNTI9QxZc5NoIOX/pub?output=csv";
+var SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYvZrm38gBjQPT5Gj_N1OG_q9ZCp4fsIl5DII3TIJeAzzyQXFMUM8GvnY94V04dLNTI9QxZc5NoIOX/pub?gid=0&single=true&output=csv";
 
 // نگاشت دقیق بر اساس ترتیب ستون‌های شیت شما (تایید شده با اسکرین‌شات):
 // A:منطقه B:مدیر منطقه C:مدیر اجرایی D:کل تماس E:عدم تعیین تکلیف توسط مدیر منطقه
@@ -399,7 +399,7 @@ var COL = {
 /* ============ DATA SOURCE 2: GOOGLE SHEET — عدم تعیین‌تکلیف بیش از یک هفته (sheet2) ============ */
 // TODO: لینک CSV شیت ۲ رو اینجا جایگزین کن (راهنما: File > Share > دسترسی «هرکسی با لینک» سپس
 // https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=YOUR_GID2)
-var SHEET2_CSV_URL = "PASTE_SHEET2_CSV_LINK_HERE";
+var SHEET2_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYvZrm38gBjQPT5Gj_N1OG_q9ZCp4fsIl5DII3TIJeAzzyQXFMUM8GvnY94V04dLNTI9QxZc5NoIOX/pub?gid=1770077974&single=true&output=csv";
 
 // نگاشت ستون‌های شیت ۲: A:منطقه B:مدیر منطقه C:مدیر اجرایی D:تعداد عدم‌تعیین‌تکلیف بیش از یک هفته
 var COL2 = { region:0, manager:1, exec:2, pendWeek:3 };
