@@ -285,6 +285,382 @@ padding:18px 24px;margin-bottom:22px;box-shadow:var(--shadow-md);}
 .dashboard-header h2{margin:0;font-size:22px;font-weight:800;color:var(--navy-950);}
 .dashboard-header .badge{display:inline-flex;align-items:center;padding:8px 16px;border-radius:999px;background:var(--gold-050);border:1px solid rgba(201,154,46,.25);color:var(--gold-500);font-size:13px;font-weight:700;}
 
+/* ==========================================================================
+   MOBILE RESPONSIVE LAYOUT
+   همهٔ قوانین این بخش فقط در نمایشگرهای موبایل فعال می‌شوند.
+   نسخهٔ دسکتاپ و منطق داشبورد بدون تغییر باقی می‌ماند.
+   ========================================================================== */
+@media (max-width:720px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden;}
+  body{padding-bottom:env(safe-area-inset-bottom);}
+
+  /* سربرگ گزارش */
+  .topbar{
+    padding:22px 14px 72px;
+    overflow:hidden;
+  }
+  .topbar-row{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:18px;
+  }
+  .topbar-row>div:first-child{width:100%;min-width:0;}
+  .brand-eyebrow{
+    max-width:100%;
+    margin-bottom:12px;
+    padding:5px 10px;
+    font-size:10.5px;
+    line-height:1.7;
+    white-space:normal;
+  }
+  .topbar h1{
+    font-size:25px;
+    line-height:1.45;
+    margin-bottom:7px;
+  }
+  .topbar p.sub{
+    max-width:none;
+    font-size:12.5px;
+    line-height:1.9;
+  }
+  .meta-box{
+    width:100%;
+    min-width:0;
+    padding:12px 14px;
+    border-radius:12px;
+  }
+  .meta-box .row{
+    gap:12px;
+    padding:7px 0;
+    font-size:11.5px;
+    line-height:1.6;
+  }
+  .meta-box .row span{flex:0 0 auto;}
+  .meta-box .row b{
+    min-width:0;
+    text-align:left;
+    overflow-wrap:anywhere;
+  }
+  .meta-box .row:last-child{padding-top:10px;}
+  #refreshBtn{width:100%;min-height:40px;font-size:11.5px!important;}
+
+  /* پوسته و خلاصهٔ اصلی */
+  .shell{
+    width:100%;
+    margin:-48px auto 34px;
+    padding:0 12px 24px;
+  }
+  .dashboard-header{
+    position:relative;
+    z-index:3;
+    gap:10px;
+    padding:14px;
+    margin-bottom:12px;
+    border-radius:14px;
+  }
+  .dashboard-header h2{
+    min-width:0;
+    font-size:17px;
+    line-height:1.5;
+  }
+  .dashboard-header .badge{
+    flex:0 0 auto;
+    padding:6px 10px;
+    font-size:10px;
+    white-space:nowrap;
+  }
+
+  /* کارت‌های KPI */
+  .kpi-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+  }
+  .kpi{
+    min-width:0;
+    min-height:148px;
+    padding:14px 12px 13px;
+    border-radius:13px;
+  }
+  .kpi .icon{
+    width:32px;
+    height:32px;
+    margin-bottom:10px;
+    border-radius:9px;
+  }
+  .kpi .icon svg{width:16px;height:16px;}
+  .kpi .label{
+    min-height:34px;
+    margin-bottom:5px;
+    font-size:10.5px;
+    line-height:1.65;
+  }
+  .kpi .value{font-size:23px;line-height:1.2;overflow-wrap:anywhere;}
+  .kpi .foot{margin-top:7px;font-size:9.5px;line-height:1.65;}
+  .kpi .corner-ring{left:-38px;bottom:-38px;transform:scale(.78);}
+  .kpi:last-child:nth-child(odd){grid-column:1/-1;}
+
+  /* عنوان بخش‌ها */
+  .section-title{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:8px 10px;
+    align-items:center;
+    margin:30px 0 14px;
+  }
+  .section-title h2{
+    min-width:0;
+    font-size:15px;
+    line-height:1.65;
+  }
+  .section-title .badge{
+    max-width:145px;
+    padding:4px 8px;
+    font-size:9.5px;
+    line-height:1.5;
+    text-align:center;
+    white-space:normal;
+  }
+  .section-title::after{
+    grid-column:1/-1;
+    width:100%;
+  }
+  .section-note{
+    margin:-5px 0 14px;
+    font-size:11px;
+    line-height:1.9;
+  }
+
+  /* پنل مدیران اجرایی */
+  .exec-panel{
+    margin-top:24px;
+    margin-bottom:22px;
+    padding:16px 12px 14px;
+    border-radius:16px;
+  }
+  .exec-panel .section-title{
+    margin:0 0 14px;
+    grid-template-columns:minmax(0,1fr) auto;
+  }
+  .exec-panel .section-title h2{font-size:15px;}
+  .exec-panel .section-title .badge{max-width:120px;}
+  .exec-panel .crown{margin-left:5px;}
+  .mgr-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  .mgr-card{
+    min-width:0;
+    padding:10px;
+    border-radius:12px;
+  }
+  .mgr-card:last-child:nth-child(odd){grid-column:1/-1;}
+  .mgr-card .avatar{
+    min-height:42px;
+    padding:7px 5px;
+    margin-bottom:9px;
+    font-size:11.5px;
+    line-height:1.55;
+    overflow-wrap:anywhere;
+  }
+  .mgr-card .mrole{
+    min-height:31px;
+    margin-bottom:8px;
+    font-size:9.5px;
+    line-height:1.6;
+  }
+  .mgr-stats{gap:7px;padding-top:8px;}
+  .mgr-stats .mstat{min-width:0;}
+  .mgr-stats .mstat .mv{font-size:14px;}
+  .mgr-stats .mstat .ml{font-size:9px;}
+  .exec-panel .mgr-card:hover{transform:none;}
+
+  /* کارت‌ها و فهرست‌های عملکرد */
+  .grid-2{grid-template-columns:1fr;gap:12px;}
+  .card{
+    min-width:0;
+    padding:16px 13px;
+    border-radius:14px;
+  }
+  .card h3{font-size:13px;line-height:1.65;}
+  .card .card-sub{margin-bottom:14px;font-size:10.5px;line-height:1.7;}
+  .cbar-list,.camp-list{
+    max-height:410px;
+    padding-left:2px;
+    overscroll-behavior:contain;
+  }
+  .cbar-row{
+    grid-template-columns:minmax(82px,108px) minmax(72px,1fr) 28px;
+    gap:7px;
+  }
+  .cbar-name{
+    font-size:10.5px;
+    line-height:1.5;
+  }
+  .cbar-track{height:11px;}
+  .cbar-val{font-size:11px;}
+  .legend-row{
+    flex-wrap:wrap;
+    gap:8px 14px;
+    margin-top:13px;
+    font-size:10px;
+    line-height:1.6;
+  }
+  .camp-list{gap:12px;}
+  .camp-top{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto auto;
+    gap:6px;
+    align-items:center;
+    margin-bottom:5px;
+    font-size:11px;
+  }
+  .camp-top .cname{min-width:0;font-size:10.5px;}
+  .camp-top .cratio{font-size:10px;}
+  .camp-top .cpct{font-size:11px;}
+  .bar-track{height:8px;}
+
+  /* نوار ابزار جدول تفصیلی */
+  .table-toolbar{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:9px;
+    margin-bottom:12px;
+  }
+  .search-box{
+    width:100%;
+    min-width:0;
+    max-width:none;
+  }
+  .search-box input{min-height:43px;font-size:12px;}
+  .table-toolbar>div:last-child{
+    width:100%;
+    display:grid!important;
+    grid-template-columns:1fr;
+    gap:9px!important;
+    align-items:stretch!important;
+  }
+  .chip-group{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;
+  }
+  .chip{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:40px;
+    padding:7px 8px;
+    font-size:10.5px;
+    line-height:1.45;
+    text-align:center;
+  }
+  select.mgr-filter{
+    width:100%;
+    min-height:42px;
+    padding:7px 12px;
+    font-size:11px;
+  }
+
+  /* جدول‌ها: اسکرول افقی لمسی و ثابت‌ماندن ستون منطقه */
+  .table-wrap{border-radius:14px;}
+  .table-scroll{
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-inline:contain;
+    direction:rtl;
+  }
+  table{font-size:11px;}
+  #dataTable{min-width:1080px;}
+  #pendWeekTable{min-width:620px;}
+  thead th{
+    padding:11px 9px;
+    font-size:10px;
+  }
+  tbody td{
+    padding:10px 9px;
+    font-size:10.5px;
+  }
+  tfoot td{
+    padding:11px 9px;
+    font-size:10.5px;
+  }
+  .name-manager{font-size:9px;line-height:1.55;margin-top:3px;}
+  .pill{font-size:9px;padding:3px 7px;}
+
+  #dataTable th:first-child,
+  #dataTable td:first-child{
+    position:sticky;
+    right:0;
+    z-index:3;
+    width:158px;
+    min-width:158px;
+    max-width:158px;
+    background:#fff;
+    box-shadow:-7px 0 12px rgba(15,33,64,.10);
+  }
+  #dataTable thead th:first-child{
+    z-index:5;
+    background:var(--navy-950);
+  }
+  #dataTable tfoot td:first-child{
+    z-index:4;
+    background:#f3f5f9;
+  }
+  #dataTable tbody tr:hover td:first-child{background:#f7f9fc;}
+  #dataTable tbody tr.is-campaign td:first-child{background:#fff;}
+  #dataTable tbody tr.is-campaign:hover td:first-child{background:#f7f9fc;}
+
+  #pendWeekTable th:first-child,
+  #pendWeekTable td:first-child{
+    position:sticky;
+    right:0;
+    z-index:3;
+    width:132px;
+    min-width:132px;
+    max-width:132px;
+    background:#fff;
+    box-shadow:-7px 0 12px rgba(15,33,64,.10);
+  }
+  #pendWeekTable thead th:first-child{
+    z-index:5;
+    background:var(--navy-950);
+  }
+  #pendWeekTable tfoot td:first-child{
+    z-index:4;
+    background:#f3f5f9;
+  }
+  #pendWeekTable tr.row-high td:first-child{background:#fff;}
+
+  footer{
+    padding:18px 14px 30px;
+    font-size:10.5px;
+    line-height:1.9;
+  }
+}
+
+@media (max-width:380px){
+  .topbar{padding-inline:12px;}
+  .topbar h1{font-size:23px;}
+  .topbar p.sub{font-size:11.5px;}
+  .shell{padding-inline:10px;}
+  .dashboard-header{padding:12px;}
+  .dashboard-header h2{font-size:15.5px;}
+  .dashboard-header .badge{padding-inline:8px;font-size:9px;}
+  .kpi-grid{gap:7px;}
+  .kpi{padding:12px 9px;min-height:145px;}
+  .kpi .label{font-size:9.8px;}
+  .kpi .value{font-size:21px;}
+  .kpi .foot{font-size:9px;}
+  .exec-panel{padding-inline:10px;}
+  .mgr-grid{gap:7px;}
+  .mgr-card{padding:8px;}
+  .mgr-card .avatar{font-size:10.5px;}
+  .section-title .badge{max-width:115px;}
+  .cbar-row{grid-template-columns:minmax(76px,96px) minmax(62px,1fr) 25px;gap:6px;}
+}
 </style>
 </head>
 <body>
