@@ -1,1271 +1,168 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>داشبورد توسعه فرانچایز</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#0a1120"/>
+<title>پایش آنلاین پرونده‌های فرانچایز | دیلی‌مارکت</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-  :root{
-    --navy-950:#0a1628;
-    --navy-900:#0f2140;
-    --navy-800:#16304f;
-    --navy-700:#1d3f65;
-    --navy-600:#2a5382;
-    --gold-500:#c99a2e;
-    --gold-400:#dcb24f;
-    --gold-050:#fbf3df;
-    --paper:#f4f6f9;
-    --card:#ffffff;
-    --ink-900:#101826;
-    --ink-700:#374357;
-    --ink-500:#66738a;
-    --ink-300:#a8b2c2;
-    --line:#e4e8ef;
-    --green-600:#188256;
-    --green-050:#e5f6ee;
-    --amber-600:#b96b13;
-    --amber-050:#fdf1e2;
-    --red-600:#c23636;
-    --red-050:#fce9e9;
-    --shadow-sm: 0 1px 2px rgba(15,33,64,0.06), 0 1px 1px rgba(15,33,64,0.04);
-    --shadow-md: 0 8px 24px -8px rgba(15,33,64,0.18);
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;}
-  body{
-    background:var(--paper);
-    color:var(--ink-900);
-    font-feature-settings:"ss01" on, "cv01" on;
-  }
-  ::selection{background:var(--gold-400);color:var(--navy-950);}
-  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;}
-
-  /* ===== Top bar ===== */
-  .topbar{
-    background:linear-gradient(155deg, var(--navy-950) 0%, var(--navy-900) 55%, var(--navy-800) 100%);
-    color:#fff;
-    padding:30px 40px 84px;
-    position:relative;
-    overflow:hidden;
-  }
-  .topbar::after{
-    content:"";
-    position:absolute; inset:0;
-    background:
-      radial-gradient(680px 320px at 88% -10%, rgba(201,154,46,0.20), transparent 60%),
-      repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 64px);
-    pointer-events:none;
-  }
-  .topbar-inner{position:relative; z-index:1; max-width:1360px; margin:0 auto;}
-  .topbar-row{display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap;}
-  .brand-eyebrow{
-    display:inline-flex; align-items:center; gap:8px;
-    font-size:12.5px; font-weight:600; letter-spacing:.04em;
-    color:var(--gold-400); text-transform:uppercase;
-    background:rgba(220,178,79,0.12); border:1px solid rgba(220,178,79,0.3);
-    padding:5px 12px; border-radius:100px; margin-bottom:16px;
-  }
-  .brand-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--gold-400);}
-  .topbar h1{font-size:32px; font-weight:800; margin:0 0 8px; letter-spacing:-.01em;}
-  .topbar p.sub{font-size:15px; color:#b9c4d8; margin:0; max-width:560px; line-height:1.9;}
-  .meta-box{
-    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
-    border-radius:14px; padding:16px 20px; min-width:230px;
-  }
-  .meta-box .row{display:flex; justify-content:space-between; font-size:13px; padding:5px 0; color:#c8d2e2;}
-  .meta-box .row b{color:#fff; font-weight:700;}
-  .meta-box .row + .row{border-top:1px dashed rgba(255,255,255,0.12);}
-
-  /* ===== Layout shell ===== */
-  .shell{max-width:1360px; margin:-56px auto 60px; padding:0 40px 40px;}
-  .section-title{
-    display:flex; align-items:center; gap:12px;
-    margin:44px 0 18px;
-  }
-  .section-title h2{font-size:18px; font-weight:800; margin:0; color:var(--navy-950);}
-  .section-title .badge{
-    font-size:11.5px; font-weight:700; color:var(--ink-500);
-    background:#fff; border:1px solid var(--line); border-radius:100px; padding:3px 10px;
-  }
-  .section-title::after{content:""; flex:1; height:1px; background:var(--line);}
-  .section-note{font-size:13px; color:var(--ink-500); margin:-10px 0 20px; line-height:1.8;}
-
-  /* ===== KPI cards ===== */
-  .kpi-grid{
-    display:grid; grid-template-columns:repeat(5,1fr); gap:16px;
-    position:relative; z-index:2;
-  }
-  .kpi{
-    background:var(--card); border:1px solid var(--line); border-radius:16px;
-    padding:20px 20px 18px; box-shadow:var(--shadow-md);
-    position:relative; overflow:hidden;
-  }
-  .kpi .icon{
-    width:36px;height:36px;border-radius:10px;
-    display:flex;align-items:center;justify-content:center;
-    background:var(--navy-900); color:#fff; margin-bottom:14px;
-  }
-  .kpi.hero{background:linear-gradient(160deg, var(--navy-950), var(--navy-800)); border-color:var(--navy-800);}
-  .kpi.hero .icon{background:var(--gold-500); color:var(--navy-950);}
-  .kpi .label{font-size:12.5px; color:var(--ink-500); font-weight:600; margin-bottom:6px; min-height:32px;}
-  .kpi.hero .label{color:#aebbd2;}
-  .kpi .value{font-size:29px; font-weight:800; line-height:1; letter-spacing:-.01em;}
-  .kpi.hero .value{color:#fff;}
-  .kpi .foot{margin-top:10px; font-size:12px; color:var(--ink-500); line-height:1.6;}
-  .kpi.hero .foot{color:#9bacc8;}
-  .kpi .corner-ring{
-    position:absolute; left:-30px; bottom:-30px; width:110px; height:110px;
-    border-radius:50%; border:22px solid rgba(201,154,46,0.08);
-  }
-
-  /* ===== Two column grid ===== */
-  .grid-2{display:grid; grid-template-columns:1.15fr 1fr; gap:20px; align-items:stretch;}
-  .card{background:var(--card); border:1px solid var(--line); border-radius:18px; padding:24px 26px; box-shadow:var(--shadow-sm);}
-  .card h3{font-size:15px; font-weight:800; margin:0 0 4px;}
-  .card .card-sub{font-size:12.5px; color:var(--ink-500); margin:0 0 18px;}
-
-  /* Contract bar list (pure CSS, no external lib) */
-  .cbar-list{display:flex; flex-direction:column; gap:11px; max-height:460px; overflow-y:auto; padding-left:4px;}
-  .cbar-row{display:grid; grid-template-columns:150px 1fr 34px; align-items:center; gap:10px;}
-  .cbar-name{font-size:12.5px; font-weight:600; color:var(--ink-700); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .cbar-track{height:14px; background:#eef1f6; border-radius:6px; overflow:hidden;}
-  .cbar-fill{height:100%; border-radius:6px; background:linear-gradient(90deg,var(--navy-700),var(--navy-600));}
-  .cbar-fill.is-camp{background:linear-gradient(90deg,#b8892a,var(--gold-500));}
-  .cbar-val{font-size:12.5px; font-weight:800; color:var(--navy-950); text-align:left;}
-  .legend-row{display:flex; gap:18px; margin-top:16px; font-size:11.5px; color:var(--ink-500);}
-  .legend-row span{display:inline-flex; align-items:center; gap:6px;}
-  .legend-dot{width:9px;height:9px;border-radius:3px;}
-
-  /* Campaign progress list */
-  .camp-list{display:flex; flex-direction:column; gap:14px; max-height:460px; overflow-y:auto; padding-left:4px;}
-  .camp-top{display:flex; justify-content:space-between; align-items:baseline; font-size:13px; margin-bottom:6px; gap:8px;}
-  .camp-top .cname{font-weight:700; color:var(--navy-950); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .camp-top .cratio{color:var(--ink-500); font-size:12px; white-space:nowrap;}
-  .camp-top .cpct{font-weight:800; font-size:13px; white-space:nowrap;}
-  .bar-track{height:9px; background:#eef1f6; border-radius:100px; overflow:hidden;}
-  .bar-fill{height:100%; border-radius:100px;}
-  .pct-high{color:var(--green-600);} .fill-high{background:linear-gradient(90deg,#1fa971,var(--green-600));}
-  .pct-mid{color:var(--amber-600);} .fill-mid{background:linear-gradient(90deg,#e8a53e,var(--amber-600));}
-  .pct-low{color:var(--red-600);} .fill-low{background:linear-gradient(90deg,#e05f5f,var(--red-600));}
-
-  /* Exec manager cards */
-  .mgr-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:14px;}
-  .mgr-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:var(--shadow-sm);}
-
-  /* ===== پنل متمایز مدیران اجرایی ===== */
-  .exec-panel{
-    background:linear-gradient(155deg, var(--navy-950) 0%, var(--navy-900) 55%, var(--navy-800) 100%);
-    border-radius:22px; padding:26px 26px 22px; margin-bottom:28px;
-    border:1px solid var(--navy-800); position:relative; overflow:hidden;
-    box-shadow:0 18px 40px -18px rgba(10,22,40,.55);
-  }
-  .exec-panel::before{
-    content:""; position:absolute; inset:0 0 auto 0; height:4px;
-    background:linear-gradient(90deg, var(--gold-500), var(--gold-400), var(--gold-500));
-  }
-  .exec-panel .section-title{margin-bottom:18px;}
-  .exec-panel .section-title h2{color:#fff;}
-  .exec-panel .section-title::after{background:rgba(255,255,255,.14);}
-  .exec-panel .section-title .badge{
-    background:rgba(220,178,79,.16); border:1px solid rgba(220,178,79,.4); color:var(--gold-400);
-  }
-  .exec-panel .crown{margin-left:8px; font-size:15px;}
-  .exec-panel .mgr-card{
-    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12);
-    backdrop-filter:blur(2px); box-shadow:none;
-  }
-  .exec-panel .mgr-card .avatar{background:var(--gold-500); color:var(--navy-950);}
-  .exec-panel .mgr-card .mrole{color:#9fb0c8;}
-  .exec-panel .mgr-card .mgr-stats{border-top:1px solid rgba(255,255,255,.12);}
-  .exec-panel .mgr-card .mstat .mv{color:#fff;}
-  .exec-panel .mgr-card .mstat .ml{color:#8ea0ba;}
-  .exec-panel .mgr-card .mstat.gold .mv{color:var(--gold-400);}
-  .exec-panel .mgr-card:hover{border-color:rgba(220,178,79,.5); transform:translateY(-2px); transition:.15s;}
-  .mgr-card .avatar{
-    width:100%; height:auto; min-height:38px; border-radius:10px; background:var(--navy-900); color:var(--gold-400);
-    display:flex; align-items:center; justify-content:center; text-align:center;
-    font-weight:800; font-size:14.5px; line-height:1.3; padding:9px 8px; margin-bottom:12px;
-    box-sizing:border-box;
-  }
-  .mgr-card .mrole{font-size:11.5px; color:var(--ink-500); margin-bottom:14px;}
-  .mgr-stats{display:flex; justify-content:space-between; border-top:1px dashed var(--line); padding-top:10px;}
-  .mgr-stats .mstat .mv{font-size:16px; font-weight:800; color:var(--navy-950);}
-  .mgr-stats .mstat .ml{font-size:10.5px; color:var(--ink-500); margin-top:1px;}
-  .mgr-stats .mstat.gold .mv{color:var(--gold-500);}
-
-  /* ===== Table ===== */
-  .table-toolbar{
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-    flex-wrap:wrap; margin-bottom:16px;
-  }
-  .search-box{position:relative; flex:1; min-width:220px; max-width:320px;}
-  .search-box input{
-    width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--line);
-    font-family:inherit; font-size:13.5px; background:#fff; outline:none; transition:border-color .15s;
-  }
-  .search-box input:focus{border-color:var(--navy-600);}
-  .search-box svg{position:absolute; right:12px; top:50%; transform:translateY(-50%); opacity:.45;}
-  .chip-group{display:flex; gap:8px; flex-wrap:wrap;}
-  .chip{
-    font-size:12.5px; font-weight:600; color:var(--ink-700); background:#fff;
-    border:1px solid var(--line); border-radius:100px; padding:7px 14px; cursor:pointer;
-    transition:all .15s; user-select:none;
-  }
-  .chip:hover{border-color:var(--navy-600);}
-  .chip.active{background:var(--navy-900); color:#fff; border-color:var(--navy-900);}
-  select.mgr-filter{
-    font-family:inherit; font-size:12.5px; font-weight:600; color:var(--ink-700);
-    border:1px solid var(--line); border-radius:100px; padding:7px 14px; background:#fff; cursor:pointer;
-  }
-  .table-wrap{
-    background:var(--card); border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:var(--shadow-sm);
-  }
-  .table-scroll{width:100%; overflow-x:auto;}
-  table{width:100%; border-collapse:collapse; font-size:13px; min-width:920px;}
-  thead th{
-    background:var(--navy-950); color:#cdd7e8; font-weight:700; font-size:11.5px;
-    padding:13px 10px; text-align:center; white-space:nowrap; cursor:pointer; user-select:none;
-  }
-  thead th:first-child{text-align:right; padding-right:20px;}
-  thead th .sort-arrow{opacity:.4; font-size:9px; margin-left:2px;}
-  thead th.emph{color:var(--gold-400);}
-  tbody td{padding:11px 10px; text-align:center; border-top:1px solid var(--line); white-space:nowrap;}
-  tbody td:first-child{text-align:right; padding-right:20px; font-weight:700; color:var(--navy-950);}
-  tbody tr:hover{background:#f7f9fc;}
-  tbody tr.is-campaign td:first-child{position:relative;}
-  tbody tr.is-campaign td:first-child::before{
-    content:""; position:absolute; right:0; top:0; bottom:0; width:3px; background:var(--gold-500);
-  }
-  .name-manager{display:block; font-size:11px; color:var(--ink-500); font-weight:500; margin-top:1px;}
-  .td-contract{font-weight:800; color:var(--navy-950); background:var(--gold-050);}
-  .pill{display:inline-block; font-size:11px; font-weight:700; padding:3px 9px; border-radius:100px;}
-  .pill.ok{background:var(--green-050); color:var(--green-600);}
-  .pill.no{color:var(--ink-300);}
-
-  #pendWeekTable{min-width:0;}
-  #pendWeekTable thead th{background:var(--navy-950); color:#cdd7e8;}
-  #pendWeekTable .pw-count{font-weight:800; display:inline-block; min-width:34px; padding:3px 10px; border-radius:100px;}
-  #pendWeekTable .pw-high{background:var(--red-050); color:var(--red-600);}
-  #pendWeekTable .pw-mid{background:var(--amber-050); color:var(--amber-600);}
-  #pendWeekTable .pw-zero{background:var(--green-050); color:var(--green-600);}
-  #pendWeekTable tr.row-high td:first-child{position:relative;}
-  #pendWeekTable tr.row-high td:first-child::before{content:""; position:absolute; right:0; top:0; bottom:0; width:3px; background:var(--red-600);}
-  tfoot td{
-    padding:13px 10px; text-align:center; font-weight:800; background:#f3f5f9;
-    border-top:2px solid var(--navy-900); color:var(--navy-950);
-  }
-  tfoot td:first-child{text-align:right; padding-right:20px;}
-
-  footer{
-    max-width:1360px; margin:0 auto; padding:24px 40px 50px; text-align:center;
-    color:var(--ink-500); font-size:12px; line-height:2;
-  }
-  footer b{color:var(--ink-700);}
-
-  @media (max-width:1180px){
-    .kpi-grid{grid-template-columns:repeat(3,1fr);}
-    .mgr-grid{grid-template-columns:repeat(3,1fr);}
-    .grid-2{grid-template-columns:1fr;}
-  }
-  @media (max-width:720px){
-    .topbar{padding:24px 18px 70px;}
-    .shell{padding:0 16px 30px;}
-    .kpi-grid{grid-template-columns:repeat(2,1fr);}
-    .mgr-grid{grid-template-columns:repeat(2,1fr);}
-  }
-
-/* ===== Dashboard Header Card ===== */
-.dashboard-header{
-display:flex;align-items:center;justify-content:space-between;
-background:#fff;border:1px solid var(--line);border-radius:18px;
-padding:18px 24px;margin-bottom:22px;box-shadow:var(--shadow-md);}
-.dashboard-header h2{margin:0;font-size:22px;font-weight:800;color:var(--navy-950);}
-.dashboard-header .badge{display:inline-flex;align-items:center;padding:8px 16px;border-radius:999px;background:var(--gold-050);border:1px solid rgba(201,154,46,.25);color:var(--gold-500);font-size:13px;font-weight:700;}
-
-/* ==========================================================================
-   MOBILE RESPONSIVE LAYOUT
-   همهٔ قوانین این بخش فقط در نمایشگرهای موبایل فعال می‌شوند.
-   نسخهٔ دسکتاپ و منطق داشبورد بدون تغییر باقی می‌ماند.
-   ========================================================================== */
-@media (max-width:720px){
-  html,body{width:100%;max-width:100%;overflow-x:hidden;}
-  body{padding-bottom:env(safe-area-inset-bottom);}
-
-  /* سربرگ گزارش */
-  .topbar{
-    padding:22px 14px 72px;
-    overflow:hidden;
-  }
-  .topbar-row{
-    display:flex;
-    flex-direction:column;
-    align-items:stretch;
-    gap:18px;
-  }
-  .topbar-row>div:first-child{width:100%;min-width:0;}
-  .brand-eyebrow{
-    max-width:100%;
-    margin-bottom:12px;
-    padding:5px 10px;
-    font-size:10.5px;
-    line-height:1.7;
-    white-space:normal;
-  }
-  .topbar h1{
-    font-size:25px;
-    line-height:1.45;
-    margin-bottom:7px;
-  }
-  .topbar p.sub{
-    max-width:none;
-    font-size:12.5px;
-    line-height:1.9;
-  }
-  .meta-box{
-    width:100%;
-    min-width:0;
-    padding:12px 14px;
-    border-radius:12px;
-  }
-  .meta-box .row{
-    gap:12px;
-    padding:7px 0;
-    font-size:11.5px;
-    line-height:1.6;
-  }
-  .meta-box .row span{flex:0 0 auto;}
-  .meta-box .row b{
-    min-width:0;
-    text-align:left;
-    overflow-wrap:anywhere;
-  }
-  .meta-box .row:last-child{padding-top:10px;}
-  #refreshBtn{width:100%;min-height:40px;font-size:11.5px!important;}
-
-  /* پوسته و خلاصهٔ اصلی */
-  .shell{
-    width:100%;
-    margin:-48px auto 34px;
-    padding:0 12px 24px;
-  }
-  .dashboard-header{
-    position:relative;
-    z-index:3;
-    gap:10px;
-    padding:14px;
-    margin-bottom:12px;
-    border-radius:14px;
-  }
-  .dashboard-header h2{
-    min-width:0;
-    font-size:17px;
-    line-height:1.5;
-  }
-  .dashboard-header .badge{
-    flex:0 0 auto;
-    padding:6px 10px;
-    font-size:10px;
-    white-space:nowrap;
-  }
-
-  /* کارت‌های KPI */
-  .kpi-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:9px;
-  }
-  .kpi{
-    min-width:0;
-    min-height:148px;
-    padding:14px 12px 13px;
-    border-radius:13px;
-  }
-  .kpi .icon{
-    width:32px;
-    height:32px;
-    margin-bottom:10px;
-    border-radius:9px;
-  }
-  .kpi .icon svg{width:16px;height:16px;}
-  .kpi .label{
-    min-height:34px;
-    margin-bottom:5px;
-    font-size:10.5px;
-    line-height:1.65;
-  }
-  .kpi .value{font-size:23px;line-height:1.2;overflow-wrap:anywhere;}
-  .kpi .foot{margin-top:7px;font-size:9.5px;line-height:1.65;}
-  .kpi .corner-ring{left:-38px;bottom:-38px;transform:scale(.78);}
-  .kpi:last-child:nth-child(odd){grid-column:1/-1;}
-
-  /* عنوان بخش‌ها */
-  .section-title{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) auto;
-    gap:8px 10px;
-    align-items:center;
-    margin:30px 0 14px;
-  }
-  .section-title h2{
-    min-width:0;
-    font-size:15px;
-    line-height:1.65;
-  }
-  .section-title .badge{
-    max-width:145px;
-    padding:4px 8px;
-    font-size:9.5px;
-    line-height:1.5;
-    text-align:center;
-    white-space:normal;
-  }
-  .section-title::after{
-    grid-column:1/-1;
-    width:100%;
-  }
-  .section-note{
-    margin:-5px 0 14px;
-    font-size:11px;
-    line-height:1.9;
-  }
-
-  /* پنل مدیران اجرایی */
-  .exec-panel{
-    margin-top:24px;
-    margin-bottom:22px;
-    padding:16px 12px 14px;
-    border-radius:16px;
-  }
-  .exec-panel .section-title{
-    margin:0 0 14px;
-    grid-template-columns:minmax(0,1fr) auto;
-  }
-  .exec-panel .section-title h2{font-size:15px;}
-  .exec-panel .section-title .badge{max-width:120px;}
-  .exec-panel .crown{margin-left:5px;}
-  .mgr-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:8px;
-  }
-  .mgr-card{
-    min-width:0;
-    padding:10px;
-    border-radius:12px;
-  }
-  .mgr-card:last-child:nth-child(odd){grid-column:1/-1;}
-  .mgr-card .avatar{
-    min-height:42px;
-    padding:7px 5px;
-    margin-bottom:9px;
-    font-size:11.5px;
-    line-height:1.55;
-    overflow-wrap:anywhere;
-  }
-  .mgr-card .mrole{
-    min-height:31px;
-    margin-bottom:8px;
-    font-size:9.5px;
-    line-height:1.6;
-  }
-  .mgr-stats{gap:7px;padding-top:8px;}
-  .mgr-stats .mstat{min-width:0;}
-  .mgr-stats .mstat .mv{font-size:14px;}
-  .mgr-stats .mstat .ml{font-size:9px;}
-  .exec-panel .mgr-card:hover{transform:none;}
-
-  /* کارت‌ها و فهرست‌های عملکرد */
-  .grid-2{grid-template-columns:1fr;gap:12px;}
-  .card{
-    min-width:0;
-    padding:16px 13px;
-    border-radius:14px;
-  }
-  .card h3{font-size:13px;line-height:1.65;}
-  .card .card-sub{margin-bottom:14px;font-size:10.5px;line-height:1.7;}
-  .cbar-list,.camp-list{
-    max-height:410px;
-    padding-left:2px;
-    overscroll-behavior:contain;
-  }
-  .cbar-row{
-    grid-template-columns:minmax(82px,108px) minmax(72px,1fr) 28px;
-    gap:7px;
-  }
-  .cbar-name{
-    font-size:10.5px;
-    line-height:1.5;
-  }
-  .cbar-track{height:11px;}
-  .cbar-val{font-size:11px;}
-  .legend-row{
-    flex-wrap:wrap;
-    gap:8px 14px;
-    margin-top:13px;
-    font-size:10px;
-    line-height:1.6;
-  }
-  .camp-list{gap:12px;}
-  .camp-top{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) auto auto;
-    gap:6px;
-    align-items:center;
-    margin-bottom:5px;
-    font-size:11px;
-  }
-  .camp-top .cname{min-width:0;font-size:10.5px;}
-  .camp-top .cratio{font-size:10px;}
-  .camp-top .cpct{font-size:11px;}
-  .bar-track{height:8px;}
-
-  /* نوار ابزار جدول تفصیلی */
-  .table-toolbar{
-    display:flex;
-    flex-direction:column;
-    align-items:stretch;
-    gap:9px;
-    margin-bottom:12px;
-  }
-  .search-box{
-    width:100%;
-    min-width:0;
-    max-width:none;
-  }
-  .search-box input{min-height:43px;font-size:12px;}
-  .table-toolbar>div:last-child{
-    width:100%;
-    display:grid!important;
-    grid-template-columns:1fr;
-    gap:9px!important;
-    align-items:stretch!important;
-  }
-  .chip-group{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:7px;
-  }
-  .chip{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    min-height:40px;
-    padding:7px 8px;
-    font-size:10.5px;
-    line-height:1.45;
-    text-align:center;
-  }
-  select.mgr-filter{
-    width:100%;
-    min-height:42px;
-    padding:7px 12px;
-    font-size:11px;
-  }
-
-  /* جدول‌ها: اسکرول افقی لمسی و ثابت‌ماندن ستون منطقه */
-  .table-wrap{border-radius:14px;}
-  .table-scroll{
-    overflow-x:auto;
-    overflow-y:hidden;
-    -webkit-overflow-scrolling:touch;
-    overscroll-behavior-inline:contain;
-    direction:rtl;
-  }
-  table{font-size:11px;}
-  #dataTable{min-width:1080px;}
-  #pendWeekTable{min-width:620px;}
-  thead th{
-    padding:11px 9px;
-    font-size:10px;
-  }
-  tbody td{
-    padding:10px 9px;
-    font-size:10.5px;
-  }
-  tfoot td{
-    padding:11px 9px;
-    font-size:10.5px;
-  }
-  .name-manager{font-size:9px;line-height:1.55;margin-top:3px;}
-  .pill{font-size:9px;padding:3px 7px;}
-
-  #dataTable th:first-child,
-  #dataTable td:first-child{
-    position:sticky;
-    right:0;
-    z-index:3;
-    width:158px;
-    min-width:158px;
-    max-width:158px;
-    background:#fff;
-    box-shadow:-7px 0 12px rgba(15,33,64,.10);
-  }
-  #dataTable thead th:first-child{
-    z-index:5;
-    background:var(--navy-950);
-  }
-  #dataTable tfoot td:first-child{
-    z-index:4;
-    background:#f3f5f9;
-  }
-  #dataTable tbody tr:hover td:first-child{background:#f7f9fc;}
-  #dataTable tbody tr.is-campaign td:first-child{background:#fff;}
-  #dataTable tbody tr.is-campaign:hover td:first-child{background:#f7f9fc;}
-
-  #pendWeekTable th:first-child,
-  #pendWeekTable td:first-child{
-    position:sticky;
-    right:0;
-    z-index:3;
-    width:132px;
-    min-width:132px;
-    max-width:132px;
-    background:#fff;
-    box-shadow:-7px 0 12px rgba(15,33,64,.10);
-  }
-  #pendWeekTable thead th:first-child{
-    z-index:5;
-    background:var(--navy-950);
-  }
-  #pendWeekTable tfoot td:first-child{
-    z-index:4;
-    background:#f3f5f9;
-  }
-  #pendWeekTable tr.row-high td:first-child{background:#fff;}
-
-  footer{
-    padding:18px 14px 30px;
-    font-size:10.5px;
-    line-height:1.9;
-  }
-}
-
-@media (max-width:380px){
-  .topbar{padding-inline:12px;}
-  .topbar h1{font-size:23px;}
-  .topbar p.sub{font-size:11.5px;}
-  .shell{padding-inline:10px;}
-  .dashboard-header{padding:12px;}
-  .dashboard-header h2{font-size:15.5px;}
-  .dashboard-header .badge{padding-inline:8px;font-size:9px;}
-  .kpi-grid{gap:7px;}
-  .kpi{padding:12px 9px;min-height:145px;}
-  .kpi .label{font-size:9.8px;}
-  .kpi .value{font-size:21px;}
-  .kpi .foot{font-size:9px;}
-  .exec-panel{padding-inline:10px;}
-  .mgr-grid{gap:7px;}
-  .mgr-card{padding:8px;}
-  .mgr-card .avatar{font-size:10.5px;}
-  .section-title .badge{max-width:115px;}
-  .cbar-row{grid-template-columns:minmax(76px,96px) minmax(62px,1fr) 25px;gap:6px;}
-}
+:root{--base:#090f1b;--aside:#0b1424;--surface:#111d2f;--surface2:#162338;--line:#243449;--line2:#31425b;--text:#edf4ff;--soft:#a3b1c8;--muted:#7587a3;--pink:#ff638c;--blue:#6c9eff;--green:#4fd4ae;--amber:#ffbf66;--purple:#b092f4;--danger:#ff7c8a;--shadow:0 14px 40px rgba(0,0,0,.18)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--base);color:var(--text);font:12.6px/1.95 "Noto Sans Arabic",Tahoma,"Segoe UI",Arial,sans-serif;font-weight:400}button,input,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}h1,h2,h3,p{margin:0}strong,b{font-weight:700}.number{font-variant-numeric:tabular-nums}.shell{display:grid;grid-template-columns:242px minmax(0,1fr);min-height:100vh;max-width:1740px;margin:auto}.sidebar{position:sticky;top:0;height:100vh;min-height:0;display:flex;flex-direction:column;border-left:1px solid var(--line);background:linear-gradient(180deg,#101b2d,#0b1423);padding:23px 13px 15px}.brand{display:flex;align-items:center;gap:12px;padding:0 9px 22px;border-bottom:1px solid var(--line)}.brand-logo{width:43px;height:43px;border-radius:13px;background:linear-gradient(140deg,#f85e81,#ae2e67);display:grid;place-items:center;color:white;font-size:20px;font-weight:800;box-shadow:0 8px 24px #f85e8122}.brand strong{font-size:16px}.brand small{color:var(--soft);font-size:9px;display:block;margin-top:-3px}.side-section{margin-top:22px}.side-label{display:flex;align-items:center;justify-content:space-between;margin:0 8px 10px;color:#8c9eb9;font-size:10px;font-weight:700}.select{width:100%;background:#142237;border:1px solid #30425e;color:#e8f0ff;padding:11px 13px;border-radius:11px;appearance:none;outline:none}.select option{background:#15223a}.side-filter{margin-bottom:12px}.mini-region-list{overflow:auto;flex:1;padding:4px 1px;min-height:70px;scrollbar-width:thin;scrollbar-color:#33435c transparent}.side-region{display:flex;justify-content:space-between;gap:7px;align-items:center;width:100%;text-align:right;background:transparent;color:#aebcce;border:1px solid transparent;border-radius:9px;padding:9px 10px;margin-bottom:3px;font-size:11px}.side-region span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.side-region b{font-size:10px;color:#90a2b9}.side-region:hover{background:#1b2b43}.side-region.active{color:#fff;background:#263652;border-color:#435a7c}.side-region.active b{color:#ff94af}.side-foot{padding:16px 8px 0;border-top:1px solid var(--line);color:#8294af;font-size:9.5px;line-height:2.1}.main{padding:28px clamp(19px,3vw,51px) 36px;min-width:0;background:radial-gradient(ellipse at 85% 0%,rgba(50,75,132,.16),transparent 40%),var(--base)}.topline{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:25px}.breadcrumb{color:#8b9fbc;font-size:10px;font-weight:600}.crumbdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 4px #ff638c1c;vertical-align:middle;margin-left:8px}.sync-panel{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.sync-state{display:flex;align-items:center;gap:7px;color:#9eb1c6;font-size:10px}.sync-dot{width:7px;height:7px;border-radius:50%;background:#8297ad}.sync-dot.live{background:#4edab0;box-shadow:0 0 0 4px #4edab019}.smallbtn{background:#192941;border:1px solid #354a67;color:#e2ebf9;padding:8px 12px;border-radius:9px;font-size:10.5px}.smallbtn:hover{border-color:#6c91d8}.heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:25px}.kicker{font:700 10px Arial,sans-serif;color:var(--pink);letter-spacing:1.8px;margin-bottom:5px}.heading h1{font-size:27px;font-weight:800;line-height:1.65;letter-spacing:-.65px}.heading p{color:#93a5c0;margin-top:3px;font-size:11px}.heading-chip{border:1px solid #30445f;background:#16253b;border-radius:12px;padding:9px 16px;text-align:center;min-width:100px;color:#e8f1fe}.heading-chip strong{font-size:20px;display:block}.heading-chip small{font-size:9px;color:#9badc3}.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;margin-bottom:18px}.kpi{background:linear-gradient(155deg,#162338,#101b2c);border:1px solid var(--line);border-radius:15px;min-width:0;padding:16px 16px 13px;box-shadow:var(--shadow)}.kpi-top{display:flex;align-items:center;justify-content:space-between;gap:5px;color:#9dafc8;font-size:10px;font-weight:600}.kpi-icon{width:29px;height:29px;display:grid;place-items:center;border-radius:9px;background:#28354c;color:#bfcfee;font-size:16px}.kpi-value{font:700 30px/1.55 Tahoma,Arial,sans-serif;color:white;margin-top:5px}.kpi-sub{color:#8194ae;font-size:9.5px;margin-top:4px}.grid-two{display:grid;grid-template-columns:minmax(0,1.44fr) minmax(280px,1fr);gap:15px;margin-bottom:16px}.card{background:linear-gradient(160deg,#132034,#0f1a2b);border:1px solid var(--line);border-radius:16px;min-width:0;box-shadow:var(--shadow);overflow:hidden}.card-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:19px 21px 12px}.card-header h2{font-size:14px;font-weight:750}.card-header p{color:#899ab4;font-size:10px;margin-top:1px}.subtle{font-size:10px;color:#9fb3cd}.chip{border:1px solid #3a4a63;background:#19283e;color:#b2c4dc;border-radius:999px;padding:4px 10px;font-size:9px}.legend{display:grid;gap:9px;padding:14px 20px 22px}.legend-row{width:100%;display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:8px;border:1px solid transparent;background:transparent;color:#cbd8ec;text-align:right}.legend-row:hover{border-color:#3f5272;background:#192942}.color-dot{width:9px;height:9px;display:inline-block;border-radius:3px}.legend-row strong{margin-right:auto;color:white;font:700 13px Tahoma}.donut-block{display:flex;gap:15px;align-items:center;padding:10px 17px 14px;justify-content:center}.donut{width:177px;height:177px;border-radius:50%;display:grid;place-items:center;flex:none;filter:drop-shadow(0 10px 14px #0003)}.donut-hole{width:126px;height:126px;background:#122034;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}.donut-hole strong{font:700 34px Tahoma,sans-serif}.donut-hole span{color:#94a9c4;font-size:10px}.status-bars{padding:8px 22px 18px;display:grid;gap:18px}.st-row{display:grid;grid-template-columns:96px minmax(0,1fr) 26px;gap:12px;align-items:center;font-size:10.5px}.st-track{height:10px;background:#213149;border-radius:7px;overflow:hidden}.st-fill{height:100%;border-radius:7px;min-width:1px;transition:width .3s}.st-row b{font:700 12px Tahoma;text-align:left}.card-footnote{padding:10px 21px 18px;color:#8094b0;font-size:9px}.region-panel{margin-bottom:15px}.region-table-wrap,.data-wrap{overflow:auto;scrollbar-color:#354864 #132036}.region-table{width:100%;border-collapse:collapse;min-width:690px;text-align:right;font-size:10.5px}.region-table th,.region-table td{padding:13px 14px;border-bottom:1px solid #22314a}.region-table th{color:#8fa2bb;font-size:9.5px;font-weight:600;background:#16243a}.region-table tbody tr:hover,.data-table tbody tr:hover{background:#1c2a40}.region-table button{border:none;color:#e4eefc;background:none;padding:0;font-weight:700;text-align:right}.metric{text-align:center!important}.metric button{border:0;background:#26374f;border-radius:7px;color:#cce1fc;min-width:35px;padding:3px 6px;font:700 11px Tahoma}.metric button:hover{background:#395478}.stackedbar{display:flex;height:8px;width:140px;overflow:hidden;border-radius:8px;background:#23344c;margin-right:auto;margin-left:auto;direction:ltr}.stackedbar i{height:100%;display:block}.controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px 13px;flex-wrap:wrap}.controls h2{font-size:15px}.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.search{background:#0d192a;border:1px solid #2e405c;border-radius:10px;color:#e7f2ff;padding:10px 12px;width:min(270px,60vw);font-size:11px}.search::placeholder{color:#7f91ab}.toolbar select{background:#1b2a43;color:#dce8f7;border:1px solid #334863;border-radius:9px;padding:9px 10px;font-size:10px}.tabs{display:flex;gap:7px;overflow:auto;padding:0 19px 12px;scrollbar-width:none}.tab{color:#a4b4cd;border:1px solid #293b55;background:#17253b;border-radius:9px;padding:6px 12px;font-size:10.5px;white-space:nowrap}.tab.active{background:#36263d;color:#ffabc1;border-color:#84485d}.data-table{border-collapse:collapse;width:100%;min-width:920px;text-align:right;font-size:11px}.data-table th{position:sticky;top:0;z-index:2;background:#19283d;color:#91a6c1;font-size:9.7px;padding:14px 15px}.data-table td{padding:13px 15px;border-bottom:1px solid #213047;color:#c8d5e7;vertical-align:middle}.data-table tbody tr{cursor:pointer}.data-table .name{font-size:11px;font-weight:700;color:white}.data-table .tiny{color:#8ea0bd;font-size:9px}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:5px 9px;white-space:nowrap;font-size:10px;font-weight:700}.pill[data-status="قرارداد شده"]{color:#68dfbd;background:#173b3b}.pill[data-status="در حال تکمیل"]{color:#ffc378;background:#3a3023}.pill[data-status="قرارداد جدید"]{color:#95baff;background:#1e3454}.pill[data-status="کنسل شده"]{color:#ff8fa0;background:#402332}.docmarks{display:flex;gap:5px;direction:rtl;justify-content:flex-start}.docmark{display:grid;place-items:center;width:24px;height:24px;border-radius:6px;background:#2b3a4f;color:#91a3bc;font-size:12px}.docmark.yes{background:#163c37;color:#59d3b0}.actionlink{border:1px solid #3a5374;background:#1c304b;color:#afd0ff;padding:6px 12px;border-radius:8px;font-size:10px}.pager{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 20px;font-size:10px;color:#9daec8;flex-wrap:wrap}.pagebuttons{display:flex;gap:6px}.pagebuttons button{border:1px solid #354863;background:#1b2a42;color:#e8f1ff;border-radius:8px;padding:6px 12px}.pagebuttons button:disabled{opacity:.35;cursor:not-allowed}.empty{padding:32px;text-align:center;color:#8da3bf}.notice{margin:0 0 16px;border:1px solid #544a33;background:#2c2925;border-radius:11px;padding:11px 16px;color:#e5cda2;font-size:10px}.summary-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 16px}.strip-card{background:#132034;border:1px solid #283a54;border-radius:14px;padding:15px 16px}.strip-card strong{font:700 21px Tahoma;display:block;margin:3px 0}.strip-card small{color:#93a9c3;font-size:10px}.strip-card span{color:#9cadc7;font-size:10px}.overlay{position:fixed;inset:0;z-index:50;display:none}.overlay.show{display:flex}.scrim{position:absolute;inset:0;background:#030916c2}.drawer{position:relative;margin-right:auto;width:min(540px,100vw);height:100%;background:#122034;border-right:1px solid #364967;box-shadow:-24px 0 65px #0008;display:flex;flex-direction:column}.drawer-head{padding:24px 25px;border-bottom:1px solid #2a3c55;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.drawer-head h2{font-size:19px;margin:4px 0}.drawer-head small{color:#a4b4cc;font-size:10px}.x{border:1px solid #314764;background:#21334c;border-radius:10px;width:36px;height:36px;color:#e7f1ff;font-size:19px}.drawer-body{overflow-y:auto;padding:22px 24px 35px;scrollbar-width:thin}.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.info{border-bottom:1px solid #2c3c52;padding:0 0 13px;min-width:0}.info small{color:#859cba;font-size:9px;display:block;margin-bottom:3px}.info span{color:#eef4ff;font-size:11.5px;line-height:1.8;overflow-wrap:anywhere}.drawer-section{margin:25px 0 12px;color:#dce8f7;font-size:12px;font-weight:750}.documents{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.document{border-radius:10px;padding:13px 8px;text-align:center;background:#253348;border:1px solid #34475e;color:#9aacbf;font-size:9px}.document.present{border-color:#2f705d;background:#14382f;color:#8be7c5}.document strong{display:block;font-size:16px;margin-bottom:1px}.note{background:#1b2d44;border:1px solid #354962;color:#d4e0ee;line-height:2.1;padding:14px 16px;border-radius:12px;font-size:11px;overflow-wrap:anywhere}.drawer-actions{display:flex;gap:8px;margin-top:19px;flex-wrap:wrap}.drawer-actions a{background:#263b56;border:1px solid #3b5472;padding:9px 15px;border-radius:9px;color:#e7f2ff;font-size:10px}.drawer-actions a:hover{background:#304967}.footer{font-size:9px;color:#70849c;margin-top:16px;padding-top:12px;border-top:1px solid #213149}.hidden{display:none!important}
+@media(max-width:1330px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.shell{grid-template-columns:218px minmax(0,1fr)}}
+@media(max-width:1040px){.grid-two{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.donut-block{justify-content:flex-start}.region-table{min-width:620px}}
+@media(max-width:800px){.shell{display:block}.sidebar{height:auto;position:relative;border-left:0;border-bottom:1px solid #25374f;padding:10px 14px 12px}.brand{padding:4px 4px 9px}.brand-logo{width:33px;height:33px;font-size:16px}.side-section{margin-top:6px}.side-section>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}.side-filter{margin:0}.mini-region-list,.side-foot{display:none}.main{padding:17px 14px 27px}.topline{margin-bottom:16px}.heading{margin-bottom:16px}.heading h1{font-size:20px}.kpis{gap:8px}.kpi{padding:13px 12px}.kpi-value{font-size:25px}.summary-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.topline{flex-wrap:wrap}.heading-chip{display:none}.heading h1{font-size:18px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi-top{font-size:9px}.kpi-value{font-size:22px}.summary-strip{grid-template-columns:1fr}.card-header{padding:15px 14px 8px}.donut-block{gap:10px;padding:8px}.donut{width:138px;height:138px}.donut-hole{width:99px;height:99px}.donut-hole strong{font-size:24px}.legend{padding:8px;gap:4px}.legend-row{font-size:10px;gap:6px;padding:3px}.legend-row strong{font-size:11px}.info-grid{gap:10px}.drawer-head,.drawer-body{padding-left:15px;padding-right:15px}.documents{grid-template-columns:1fr 1fr 1fr}}
 </style>
 </head>
 <body>
-
-<div class="topbar">
-  <div class="topbar-inner">
-    <div class="topbar-row">
-      <div>
-        <div class="brand-eyebrow"><span class="dot"></span>گزارش عملکرد ستاد توسعه فرانچایز</div>
-        <h1>داشبورد توسعه فرانچایز</h1>
-        <p class="sub">پایش عملکرد جذب فرانچایز از تماس تا انعقاد قرارداد، به تفکیک ۲۴ منطقه و مدیران اجرایی — با تمرکز ویژه بر کمپین تابستانه در مناطق فرانچایز‌خیز.</p>
-      </div>
-      <div class="meta-box">
-        <div class="row"><span>بازهٔ گزارش</span><b>فروردین تا شهریور ۱۴۰۴</b></div>
-        <div class="row"><span>مناطق فعال</span><b class="num" id="metaRegionCount">۲۴ منطقه</b></div>
-        <div class="row"><span>مناطق کمپین</span><b class="num" id="metaCampCount">۱۲ منطقه</b></div>
-        <div class="row"><span>به‌روزرسانی</span><b>تیر ۱۴۰۵</b></div>
-        <div class="row"><span>اتصال گوگل‌شیت</span><b id="syncStatus" style="color:#dcb24f;">در حال اتصال…</b></div>
-        <div class="row" style="justify-content:flex-end;">
-          <button id="refreshBtn" onclick="loadDataFromSheet(true)" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:5px 12px;border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;">↻ بروزرسانی</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="shell">
-
-  <div class="dashboard-header"><h2>خلاصهٔ عملکرد کلی</h2><span class="badge">از ابتدای سال تا کنون</span></div>
-  <div class="kpi-grid" id="kpiGrid"></div>
-
-  <div class="exec-panel">
-    <div class="section-title"><h2><span class="crown">👑</span>عملکرد مدیران اجرایی</h2><span class="badge">مهم‌ترین سطح مدیریتی</span></div>
-    <div class="mgr-grid" id="mgrGrid"></div>
-  </div>
-
-  <div class="section-title"><h2>عملکرد قرارداد و کمپین تابستان</h2><span class="badge">مهم‌ترین شاخص: قرارداد</span></div>
-  <div class="grid-2">
-    <div class="card">
-      <h3>مجموع قرارداد فرانچایز به تفکیک منطقه</h3>
-      <p class="card-sub">مرتب‌شده از بیشترین به کمترین</p>
-      <div class="cbar-list" id="cbarList"></div>
-      <div class="legend-row">
-        <span><span class="legend-dot" style="background:var(--gold-500)"></span>منطقهٔ کمپین</span>
-        <span><span class="legend-dot" style="background:var(--navy-700)"></span>خارج از کمپین</span>
-      </div>
-    </div>
-    <div class="card">
-      <h3>تحقق هدف قراردادی تابستان</h3>
-      <p class="card-sub" id="campCardSub">۱۲ منطقهٔ کمپین — قرارداد تابستان نسبت به هدف تابستان</p>
-      <div class="camp-list" id="campList"></div>
-    </div>
-  </div>
-
-  <div class="section-title"><h2>مدیران با عدم تعیین‌تکلیف بیش از یک هفته</h2><span class="badge" id="pendWeekBadge">هشدار</span></div>
-  <p class="section-note">تعداد شعبی که مدیر منطقه بیش از یک هفته درباره‌شان تصمیم‌گیری نکرده — به تفکیک منطقه، مدیر منطقه و مدیر اجرایی. مرتب‌شده از بیشترین به کمترین.</p>
-  <div class="card" style="margin-bottom:8px;">
-    <div class="table-wrap" style="box-shadow:none; border:none;">
-      <div class="table-scroll">
-      <table id="pendWeekTable">
-        <thead>
-          <tr>
-            <th style="text-align:right; padding-right:20px;">منطقه</th>
-            <th>مدیر منطقه</th>
-            <th>مدیر اجرایی</th>
-            <th>تعداد &gt; ۱ هفته</th>
-          </tr>
-        </thead>
-        <tbody id="pendWeekBody"></tbody>
-        <tfoot>
-          <tr id="pendWeekFoot"></tr>
-        </tfoot>
-      </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="section-title"><h2>جدول تفصیلی مناطق</h2><span class="badge" id="tableRowBadge">۲۴ ردیف</span></div>
-  <p class="section-note">ستون‌های <b style="color:var(--navy-950)">قرارداد تا خرداد</b>، <b style="color:var(--navy-950)">قرارداد تابستان</b> و <b style="color:var(--navy-950)">مجموع قرارداد</b> — به‌عنوان مهم‌ترین شاخص توسعهٔ فرانچایز — با رنگ برجسته مشخص شده‌اند. روی سرستون‌ها کلیک کنید تا مرتب شوند.</p>
-
-  <div class="table-toolbar">
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="جستجوی نام منطقه یا مدیر…">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#374357" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-3.8-3.8"/></svg>
-    </div>
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-      <div class="chip-group" id="campaignChips">
-        <div class="chip active" data-filter="all">همه مناطق</div>
-        <div class="chip" data-filter="campaign">فقط مناطق کمپین</div>
-      </div>
-      <select class="mgr-filter" id="mgrFilter"><option value="all">همهٔ مدیران اجرایی</option></select>
-    </div>
-  </div>
-
-  <div class="table-wrap">
-    <div class="table-scroll">
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th data-key="region">منطقه <span class="sort-arrow">▾</span></th>
-          <th data-key="calls">تماس کل</th>
-          <th data-key="pending">لوکیشن در انتظار</th>
-          <th data-key="docs">تکمیل مدارک</th>
-          <th data-key="toKhordad" class="emph">قرارداد تا خرداد</th>
-          <th data-key="opened">افتتاح تا خرداد</th>
-          <th data-key="summerGoal">هدف تابستان</th>
-          <th data-key="summerContracts" class="emph">قرارداد تابستان</th>
-          <th data-key="achievement">تحقق هدف کمپین</th>
-          <th data-key="total" class="emph">مجموع قرارداد</th>
-          <th data-key="campaign">کمپین</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-      <tfoot>
-        <tr id="tableFoot"></tr>
-      </tfoot>
-    </table>
-    </div>
-  </div>
-
+<aside class="sidebar">
+  <div class="brand"><div class="brand-logo">DM</div><div><strong>دیلی‌مارکت</strong><small>FRANCHISE OPERATIONS</small></div></div>
+  <div class="side-section"><div class="side-label">فیلترهای مدیریتی <span>۲ فیلتر</span></div><div>
+    <div class="side-filter"><label class="side-label" for="execFilter">مدیر اجرایی</label><select class="select" id="execFilter" aria-label="مدیر اجرایی"></select></div>
+    <div class="side-filter"><label class="side-label" for="regionFilter">منطقه</label><select class="select" id="regionFilter" aria-label="منطقه"></select></div>
+  </div></div>
+  <div class="side-section" style="display:flex;justify-content:space-between;align-items:center"><div class="side-label">فهرست مناطق</div><span class="chip" id="sideCount">۰</span></div>
+  <div class="mini-region-list" id="regionNav"></div>
+  <div class="side-foot">نمای مدیریتی · داده‌ها فقط خوانده می‌شوند<br>برای مشاهده جزئیات، روی هر پرونده کلیک کنید.</div>
+</aside>
+<main class="main">
+<div class="topline"><div class="breadcrumb"><i class="crumbdot"></i> توسعه فرانچایز / پایش قراردادها / ۱۴۰۵</div><div class="sync-panel"><span class="sync-state"><i id="syncDot" class="sync-dot"></i><span id="syncText">اطلاعات ثبت‌شده</span></span><button class="smallbtn" id="reloadBtn">↻ به‌روزرسانی</button><button class="smallbtn" id="exportBtn">↓ خروجی CSV</button></div></div>
+<div class="heading"><div><div class="kicker">FRANCHISE · PIPELINE MANAGEMENT</div><h1 id="headline">داشبورد وضعیت قراردادهای فرانچایز</h1><p id="headlineDesc">گزارش یکپارچه مناطق و مدیران اجرایی · مرحله قرارداد، مدارک و پرونده‌های نیازمند پیگیری</p></div><div class="heading-chip"><strong id="regionCountBadge">۲۲</strong><small>منطقه در گزارش</small></div></div>
+<div class="kpis" id="kpiBox"></div>
+<div class="grid-two">
+ <section class="card"><div class="card-header"><div><h2>توزیع وضعیت پرونده‌ها</h2><p>کلیک روی هر وضعیت برای مشاهده پرونده‌ها</p></div><span class="chip" id="activeTag">همه پرونده‌ها</span></div><div class="donut-block"><div class="donut" id="statusDonut"><div class="donut-hole"><strong id="donutTotal">۰</strong><span>کل پرونده‌ها</span></div></div><div class="legend" id="statusLegend" style="flex:1"></div></div></section>
+ <section class="card"><div class="card-header"><div><h2>پیشرفت فرآیند قرارداد</h2><p>تعداد پرونده‌ها به تفکیک مرحله رسمی</p></div><span class="chip">وضعیت ثبت‌شده</span></div><div class="status-bars" id="statusBars"></div><div class="card-footnote">گزارش بر اساس ستون وضعیت است؛ مراحل زمانی از داده فعلی قابل استنتاج نیست.</div></section>
 </div>
-
-<footer>
-  داده‌ها بر اساس فایل ارسالی «داشبورد توسعه فرانچایز» تنظیم شده‌اند. <b>یادداشت:</b> نام برخی مناطق و مدیران به‌دلیل استخراج از فایل PDF ممکن است نگارش دقیق نداشته باشد — لطفاً پیش از استفادهٔ رسمی، املای نام‌ها را بررسی و اصلاح کنید.
-</footer>
-
+<div class="summary-strip" id="signalBox"></div>
+<section class="card region-panel"><div class="card-header"><div><h2>عملکرد مناطق</h2><p>مقایسه تعداد پرونده‌ها و خروجی قرارداد در مناطق منتخب</p></div><span class="chip">با انتخاب منطقه، گزارش اختصاصی باز می‌شود</span></div><div class="region-table-wrap"><table class="region-table"><thead><tr><th>منطقه</th><th class="metric">کل</th><th class="metric">قرارداد جدید</th><th class="metric">در حال تکمیل</th><th class="metric">قرارداد شده</th><th class="metric">کنسل شده</th><th class="metric">ترکیب مراحل</th></tr></thead><tbody id="regionRows"></tbody></table></div></section>
+<section class="card" id="cases"><div class="controls"><div><h2>پرونده‌های فرانچایز</h2><p class="subtle" id="caseCountText">فهرست قابل جستجو و پیگیری</p></div><div class="toolbar"><input id="searchBox" class="search" placeholder="جستجوی نام، شهر، منطقه، توضیحات..." aria-label="جستجوی پرونده"/><select id="docFilter" aria-label="فیلتر مدارک"><option value="all">تمام مدارک</option><option value="missing">مدارک ناقص</option><option value="complete">مدارک کامل</option></select><select id="sortFilter" aria-label="مرتب‌سازی"><option value="default">مرتب‌سازی پیش‌فرض</option><option value="docs">بیشترین نقص مدارک</option><option value="name">نام متقاضی</option></select></div></div><div class="tabs" id="statusTabs"></div><div class="data-wrap"><table class="data-table"><thead><tr><th>متقاضی / مدیر اجرایی</th><th>منطقه / شهر</th><th>متراژ</th><th>وضعیت قرارداد</th><th>مدارک هویتی، فروشگاه، رهنی</th><th>توضیحات</th><th>جزئیات</th></tr></thead><tbody id="caseRows"></tbody></table></div><div class="pager"><span id="pageInfo"> </span><div class="pagebuttons"><button id="prevPage">قبلی</button><button id="nextPage">بعدی</button></div></div></section>
+<footer class="footer">پایش قراردادهای فرانچایز دیلی‌مارکت · داده‌های منبع بدون تغییر نمایش داده می‌شوند؛ موارد تکراری احتمالی خودکار حذف نمی‌شوند. <span id="syncFoot"></span></footer>
+</main></div>
+<div class="overlay" id="detailOverlay" role="dialog" aria-modal="true" aria-label="جزئیات پرونده" aria-hidden="true"><div class="scrim" id="closeShade"></div><aside class="drawer"><div class="drawer-head"><div><small>FRANCHISE · CASE PROFILE</small><h2 id="drawerName">جزئیات پرونده</h2><span id="drawerStatus"></span></div><button class="x" id="closeDrawer" aria-label="بستن">×</button></div><div class="drawer-body" id="drawerContent"></div></aside></div>
 <script>
-(function(){
-"use strict";
-
-/* ============ DATA SOURCE: GOOGLE SHEET (زنده) ============ */
-// لینک Publish to web شما، تبدیل‌شده به فرمت CSV
-var SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYvZrm38gBjQPT5Gj_N1OG_q9ZCp4fsIl5DII3TIJeAzzyQXFMUM8GvnY94V04dLNTI9QxZc5NoIOX/pub?gid=0&single=true&output=csv";
-
-// نگاشت دقیق بر اساس ترتیب ستون‌های شیت شما (تایید شده با اسکرین‌شات):
-// A:منطقه B:مدیر منطقه C:مدیر اجرایی D:کل تماس E:عدم تعیین تکلیف توسط مدیر منطقه
-// F:در حال تکمیل G:قرارداد شده تا خرداد H:مجموع افتتاح I:هدف تابستان
-// J:قرارداد جدید K:تحقق هدف کمپین فرانچایز L:مجموع قرارداد فرانچایز M:کمپین
-var COL = {
-  region:0, manager:1, exec:2, calls:3, pending:4, docs:5,
-  toKhordad:6, opened:7, summerGoal:8, summerContracts:9,
-  achievement:10, total:11, campaign:12
-};
-
-/* ============ DATA SOURCE 2: GOOGLE SHEET — عدم تعیین‌تکلیف بیش از یک هفته (sheet2) ============ */
-// TODO: لینک CSV شیت ۲ رو اینجا جایگزین کن (راهنما: File > Share > دسترسی «هرکسی با لینک» سپس
-// https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/export?format=csv&gid=YOUR_GID2)
-var SHEET2_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYvZrm38gBjQPT5Gj_N1OG_q9ZCp4fsIl5DII3TIJeAzzyQXFMUM8GvnY94V04dLNTI9QxZc5NoIOX/pub?gid=1770077974&single=true&output=csv";
-
-// نگاشت ستون‌های شیت ۲: A:منطقه B:مدیر منطقه C:مدیر اجرایی D:تعداد عدم‌تعیین‌تکلیف بیش از یک هفته
-var COL2 = { region:0, manager:1, exec:2, pendWeek:3 };
-
-/* دیتای پشتیبان شیت ۲ (fallback) — از اسکرین‌شات ارسالی */
-var FALLBACK_ROWS2 = [
-  {region:"شرق فارس", manager:"بهادری مرتضی", exec:"حسینی نسب عماد", pendWeek:13},
-  {region:"کرمانشاه", manager:"مرزبان یزدان", exec:"محسنی مجید", pendWeek:5},
-  {region:"سیستان و بلوچستان", manager:"اثنی عشری حسین", exec:"حسینی نسب عماد", pendWeek:8},
-  {region:"غرب اصفهان", manager:"بهنان مسعود", exec:"محالی میثم", pendWeek:8},
-  {region:"غرب فارس", manager:"عابد مجتبی", exec:"حسینی نسب عماد", pendWeek:7},
-  {region:"البرز/الوند", manager:"سلمان زاده کیوان", exec:"نوری فرید", pendWeek:4},
-  {region:"مازندران", manager:"اسگندری حجت", exec:"محالی میثم", pendWeek:3},
-  {region:"غرب خوزستان", manager:"بختیاریان رضا", exec:"محسنی مجید", pendWeek:3},
-  {region:"جنوب آذربایجان", manager:"وجدان رضا", exec:"هم مسلک بهمن", pendWeek:2},
-  {region:"ایلام/لرستان", manager:"فارسی علی", exec:"محسنی مجید", pendWeek:2},
-  {region:"کرمان", manager:"اتحاد مصطفی", exec:"حسینی نسب عماد", pendWeek:2},
-  {region:"شرق گیلان", manager:"پاشایی بهنام", exec:"هم مسلک بهمن", pendWeek:1},
-  {region:"ری/سمنان", manager:"پوررجبی امید", exec:"نوری فرید", pendWeek:1},
-  {region:"هرمزگان و جنوب کرمان", manager:"حسن زاده سید امین", exec:"حسینی نسب عماد", pendWeek:1},
-  {region:"شرق اصفهان", manager:"منجزی وند رضا", exec:"محالی میثم", pendWeek:1},
-  {region:"غرب تهران", manager:"جمشیدی محمد", exec:"نوری فرید", pendWeek:1},
-  {region:"شرق تهران", manager:"جعفری رضا", exec:"نوری فرید", pendWeek:1},
-  {region:"آذربایجان شرقی", manager:"عزت شعار علی", exec:"هم مسلک بهمن", pendWeek:0},
-  {region:"شرق خوزستان", manager:"علی محمدی ساسان", exec:"محسنی مجید", pendWeek:0},
-  {region:"آذربایجان غربی", manager:"صادق سعیدی", exec:"هم مسلک بهمن", pendWeek:0},
-  {region:"همدان", manager:"قدرتی میلاد", exec:"محسنی مجید", pendWeek:0},
-  {region:"خراسان", manager:"کلالی مهیار", exec:"محالی میثم", pendWeek:0},
-  {region:"اسلامشهر/ساوه", manager:"دشت افکن مهدی", exec:"هم مسلک بهمن", pendWeek:0},
-  {region:"غرب گیلان", manager:"دشت افکن مهدی", exec:"هم مسلک بهمن", pendWeek:0}
-];
-
-function mapRowsToData2(csvRows){
-  if(!csvRows || !csvRows.length) throw new Error('empty');
-  var out = [];
-  for(var i=1;i<csvRows.length;i++){ // ردیف اول = هدر
-    var r = csvRows[i];
-    if(!r || !r[COL2.region] || !String(r[COL2.region]).trim()) continue;
-    out.push({
-      region: String(r[COL2.region]).trim(),
-      manager: String(r[COL2.manager]||'').trim(),
-      exec: String(r[COL2.exec]||'').trim(),
-      pendWeek: toNum(r[COL2.pendWeek])
-    });
-  }
-  if(!out.length) throw new Error('no rows');
-  return out;
+'use strict';
+// Published-view URL is informational. GViz live reads require the original /d/<sheetId>/edit ID.
+const CONFIG={publishedUrl:'https://docs.google.com/spreadsheets/d/e/2PACX-1vT3-mAWoxv7brWgzYX8mZ0PEKmDsN7jKXTnhS8RupZwMYKOdSpd9TvHYLNqLI6gbOpGfLYkPXittlWr/pubhtml',liveSheetId:'1JjvWmtSUHUolESC-_wLCVbx3D8H4_NKNJkY2RpXXOMU',refreshMs:300000};
+const TAB_NAMES=['آقای محسنی','آقای هم مسلک','آقای محالی','آقای حسینی نسب','آقای نوری'];
+const SNAPSHOT=[{"name":"مصطفی ولی نژاد","phone":"9160470030","area":"171","ownership":"مالک","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"خرم آباد","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک","status":"کنسل شده","executive":"آقای محسنی","sourceRow":2,"uid":"1-2"},{"name":"محمد صادقیان","phone":"9181110652","area":"208","ownership":"استیجاری","region":"همدان","regionalManager":"قدرتی میلاد","city":"همدان","sales":"1000000000","location":"34.788375,48.5118387","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":3,"uid":"1-3"},{"name":"محمد رضا افشاری","phone":"9188142599","area":"195","ownership":"مالک","region":"همدان","regionalManager":"قدرتی میلاد","city":"همدان","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر اخذ ماده 100","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":4,"uid":"1-4"},{"name":"حسین روزبهانی","phone":"9017769218","area":"195","ownership":"استیجاری","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"بروجرد-اشترینان","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"عدم حضور عامل در تاریخ ترهین","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":5,"uid":"1-5"},{"name":"علی یگانه","phone":"9166612004","area":"200","ownership":"مالک","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"خرم آباد-ناصرخسرو","sales":"900000000","location":"33.5023413,48.3656519","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"عامل پشیمان شده است","status":"کنسل شده","executive":"آقای محسنی","sourceRow":6,"uid":"1-6"},{"name":"سجاد شرفی","phone":"9101710249","area":"110","ownership":"مالک","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"خرم آباد-تمدن","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر سند فروشگاه-عدم پاسخگویی","status":"کنسل شده","executive":"آقای محسنی","sourceRow":7,"uid":"1-7"},{"name":"سید امین ابوالوفایی","phone":"9163984100","area":"127","ownership":"مالک","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"خرم اباد-قاضی آباد","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای محسنی","sourceRow":8,"uid":"1-8"},{"name":"محمد پارسا","phone":"9120813395","area":"270","ownership":"استیجاری","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"پلدختر","sales":"1000000000","location":"33.1527727,47.7047335","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"انعقاد قرارداد در تاریخ 1405/05/02(اخذ امضای آقای رحیمی)","status":"قرارداد جدید","executive":"آقای محسنی","sourceRow":9,"uid":"1-9"},{"name":"محمدمهدی مهدی پور","phone":"9193933918","area":"170","ownership":"استیجاری","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"ملایر","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای محسنی","sourceRow":10,"uid":"1-10"},{"name":"فاطمه میر دریکوند","phone":"9166690675","area":"150","ownership":"استیجاری","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"خرم آباد-قاضی آباد","sales":"1100000000","location":"33.467762,48.35474","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":11,"uid":"1-11"},{"name":"مجید موزونی","phone":"9183627902","area":"112.5","ownership":"استیجاری","region":"همدان","regionalManager":"قدرتی میلاد","city":"اراک","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"کنسل شد","status":"کنسل شده","executive":"آقای محسنی","sourceRow":13,"uid":"1-13"},{"name":"مهری معتمدی","phone":"9165051467","area":"130","ownership":"استیجاری","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"خرم آباد-گلدشت","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده","status":"کنسل شده","executive":"آقای محسنی","sourceRow":14,"uid":"1-14"},{"name":"محمد صادقیان","phone":"9181110652","area":"208","ownership":"استیجاری","region":"همدان","regionalManager":"قدرتی میلاد","city":"همدان","sales":"1000000000","location":"34.788375,48.5118387","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":15,"uid":"1-15"},{"name":"جمشید سنایی","phone":"9183729244","area":"200","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"قروه","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"در انتظار تایید لوکیشن جدید توسط مدیر منطقه","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":16,"uid":"1-16"},{"name":"حسنی","phone":"9915345805","area":"220","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"خیابان مسکن","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده","status":"کنسل شده","executive":"آقای محسنی","sourceRow":17,"uid":"1-17"},{"name":"شهبازی","phone":"9189553616","area":"160","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"اسلام آباد غرب","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-عدم پاسخگویی","status":"کنسل شده","executive":"آقای محسنی","sourceRow":18,"uid":"1-18"},{"name":"عباسی","phone":"9303598429","area":"150","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"شهرک نصر","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر عقد قرارداد با مالک مغازه است-عدم پاسخگویی","status":"کنسل شده","executive":"آقای محسنی","sourceRow":19,"uid":"1-19"},{"name":"مرادی","phone":"9183870856","area":"180","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"گلستان","sales":"1400000000","location":"34.338966,47.078063","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":20,"uid":"1-20"},{"name":"نجفی تبار","phone":"9185662972","area":"130","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"شهرک پرواز","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"ارزشگذاری-عدم پاسخگویی","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":21,"uid":"1-21"},{"name":"زارعی","phone":"9123557801","area":"90","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"هرسین","sales":"1000000000","location":"34.2708459,47.5959957","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"درحال تجهیز(افتتاحیه در 1405/07/22)","status":"قرارداد جدید","executive":"آقای محسنی","sourceRow":22,"uid":"1-22"},{"name":"محمد کریمی","phone":"9199180297","area":"130","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"دهگلان","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"در انتظار تایید لوکیشن جدید توسط مدیر منطقه","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":23,"uid":"1-23"},{"name":"احسان پورجعفر","phone":"9199555892","area":"160","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"بیجار","sales":"1000000000","location":"35.8738329,47.6039066","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":24,"uid":"1-24"},{"name":"صادقی","phone":"9394489858","area":"120","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"شهرک شهرداری","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر اخذ پایان کار فروشگاه","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":25,"uid":"1-25"},{"name":"حسین شهبازی","phone":"9183343038","area":"191","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"فرانچایز قصر شیرین","sales":"1000000000","location":"34.515198,45.5785855","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":26,"uid":"1-26"},{"name":"عبدالله رضایی","phone":"9183731566","area":"95","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"فرانچایز کرمانشاه دیواندره","sales":"750000000","location":"35.9209408,47.0221277","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":27,"uid":"1-27"},{"name":"وحید مامی","phone":"9188408361","area":"270","ownership":"استیجاری","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"فرانچایز ایلام مجله ژیان","sales":"750000000","location":"33.63684/46.41502","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":28,"uid":"1-28"},{"name":"افشین عباسی","phone":"9902140900","area":"200","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"کرمانشاه حمیل","sales":"750000000","location":"33.93808,46.7741526","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":29,"uid":"1-29"},{"name":"یزدان عباسیان","phone":"9188891886","area":"152","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"فرهنگیان","sales":"900000000","location":"34.363/47.12792","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":30,"uid":"1-30"},{"name":"مرتضی ساعدی","phone":"9374548717","area":"125","ownership":"استیجاری","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"شوش","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"در حال تکمیل مدارک","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":31,"uid":"1-31"},{"name":"میسا ناصری","phone":"9166090615","area":"240","ownership":"استیجاری","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"کوت عبداله","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل فعلا پشیمان شده-مشکل ضمانت","status":"کنسل شده","executive":"آقای محسنی","sourceRow":32,"uid":"1-32"},{"name":"قاسم غبیشاوی","phone":"9166315686","area":"185","ownership":"مالک","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"فرانچایز آبادان ذوالفقار","sales":"900000000","location":"30.3327469,48.318402","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":33,"uid":"1-33"},{"name":"کریم غانم زاده","phone":"9393703866","area":"155","ownership":"مالک","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"کوی قدس","sales":"1000000000","location":"30.3625393,48.2837376","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":34,"uid":"1-34"},{"name":"محمدرضا موسوی","phone":"9163398155","area":"200","ownership":"استیجاری","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"آبادان","sales":"900000000","location":"30.3247321,48.3254137","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":35,"uid":"1-35"},{"name":"کریم غانم زاده","phone":"9393703866","area":"155","ownership":"مالک","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"کوی قدس","sales":"1000000000","location":"30.3625393,48.2837376","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":36,"uid":"1-36"},{"name":"براتعلی زمانپور","phone":"9169819793","area":"195","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"مسجد سلیمان-باشگاه مرکزی","sales":"800000000","location":"31.9738269,49.28515","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":39,"uid":"1-39"},{"name":"صادق لطیفی","phone":"9166003578","area":"125","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"شهرک آغاجری","sales":"935000000","location":"31.3181911,48.7552201","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":40,"uid":"1-40"},{"name":"مسلم ناصری","phone":"9163140273","area":"140","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"کارون","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"انعقاد قرارداد در تاریخ 1405/06/04","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":41,"uid":"1-41"},{"name":"براتعلی زمانپور","phone":"9169819793","area":"195","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"مسجد سلیمان-باشگاه مرکزی","sales":"800000000","location":"31.9738269,49.28515","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":42,"uid":"1-42"},{"name":"سید لطیف موسوی","phone":"9198183913","area":"212","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"مهدیس","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"کنسل شده","status":"کنسل شده","executive":"آقای محسنی","sourceRow":43,"uid":"1-43"},{"name":"عبدالکریم منحوش","phone":"9166172804","area":"110","ownership":"مالک","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"اهواز-سلطانی","sales":"","location":"31.3157892,48.6962654","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":44,"uid":"1-44"},{"name":"سهیلا نیکفر","phone":"9902441525","area":"140","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"ایذه","sales":"1000000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"منطقه","notes":"عامل نسبت به لوکیشن تردید دارد","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":45,"uid":"1-45"},{"name":"علی پارسا مهر","phone":"9902641690","area":"145","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"رامهرمز","sales":"1005000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"سایت","notes":"پیگیر لوکیشن جدید","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":46,"uid":"1-46"},{"name":"سلیمانی","phone":"9022651256","area":"132","ownership":"مالک","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"اهواز","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"سایت","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای محسنی","sourceRow":47,"uid":"1-47"},{"name":"سجاد فرجیان","phone":"9046458714","area":"131","ownership":"استیجاری","region":"همدان","regionalManager":"قدرتی میلاد","city":"فرانچایز رسالت همدان","sales":"900000000","location":"34.7758803,48.5296177","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محسنی","sourceRow":48,"uid":"1-48"},{"name":"فاطمه دسومی","phone":"9163151883","area":"250","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"باوی","sales":"1100000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین بعد از تایید","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":49,"uid":"1-49"},{"name":"محمد موسویان اصل","phone":"9393382121","area":"135+80","ownership":"استیجاری","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"خرمشهر-آیت الله خامنه ای","sales":"1000000000","location":"30.4381813,48.1845187","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز(افتتاحیه در 1405/07/25)","status":"قرارداد جدید","executive":"آقای محسنی","sourceRow":50,"uid":"1-50"},{"name":"محمد فتحی","phone":"9169465065","area":"132","ownership":"مالک","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"اندیمشک","sales":"1000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-عدم پاسخگویی","status":"کنسل شده","executive":"آقای محسنی","sourceRow":51,"uid":"1-51"},{"name":"ابراهیم مجد","phone":"9163182998","area":"220","ownership":"استیجاری","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"کیانپارس","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"مالک 3 ساله قرارداد میبندد","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":52,"uid":"1-52"},{"name":"ملکیان","phone":"9184303342","area":"100","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"کرمانشاه-شهرک شهرداری","sales":"1100000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم تامین مالی","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":53,"uid":"1-53"},{"name":"مولایی","phone":"9184259326","area":"250","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"سقز","sales":"1400000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل تردید دارد","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":54,"uid":"1-54"},{"name":"محمودی","phone":"9108090062","area":"120","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"بانه-بلوار بلال حبشی","sales":"1100000000","location":"36.005348,45.8931678","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز","status":"قرارداد جدید","executive":"آقای محسنی","sourceRow":55,"uid":"1-55"},{"name":"مسلمی","phone":"9182078117","area":"120","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"بانه-چهارراه گلستان","sales":"1300000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر لوکیشن جدید","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":56,"uid":"1-56"},{"name":"ایزدی","phone":"9182858362","area":"135","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"چهارراه موسک","sales":"1100000000","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر لوکیشن جدید","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":57,"uid":"1-57"},{"name":"حسنی","phone":"9915345805","area":"220","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"خیابان مسکن","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده","status":"کنسل شده","executive":"آقای محسنی","sourceRow":58,"uid":"1-58"},{"name":"حسین مزرعه","phone":"9331800115","area":"140+100","ownership":"مالک","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"اهواز - جنت","sales":"2200000000","location":"31.2863591,48.6744419","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"افتتاحیه در 1405/07/15","status":"قرارداد جدید","executive":"آقای محسنی","sourceRow":59,"uid":"1-59"},{"name":"مسلم ناصری","phone":"9163140273","area":"140","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"کارون","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"انعقاد قرارداد در تاریخ 1405/06/04","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":60,"uid":"1-60"},{"name":"رضا محمدی علاسوندی","phone":"9166225107","area":"170","ownership":"مالک","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"اهواز-سیصد دستگاه","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تبدیل به ستادی","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":61,"uid":"1-61"},{"name":"امیرحسین قهرمانی","phone":"9363349148","area":"120","ownership":"استیجاری","region":"همدان","regionalManager":"قدرتی میلاد","city":"بهار-امام خمینی","sales":"1100000000","location":"34.9087223,48.4414867","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ملک در حال تعمیرات","status":"قرارداد جدید","executive":"آقای محسنی","sourceRow":62,"uid":"1-62"},{"name":"پرویز صفوی","phone":"9188611875","area":"200","ownership":"مالک","region":"همدان","regionalManager":"قدرتی میلاد","city":"اراک-شریعتی","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین بعد از تایید لوکیشن","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":63,"uid":"1-63"},{"name":"نادر باوی","phone":"9121232708","area":"140+80","ownership":"مالک","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"کارون کوت عبدالله","sales":"1300000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-عدم پاسخگویی","status":"کنسل شده","executive":"آقای محسنی","sourceRow":64,"uid":"1-64"},{"name":"کشتمند","phone":"9185700049","area":"135","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"شهرک بهداری","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین بعد از تایید لوکیشن","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":66,"uid":"1-66"},{"name":"حسین مزرعه","phone":"9331800115","area":"140+100","ownership":"مالک","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"آخر آسفالت","sales":"2200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"انعقاد قرارداد در تاریخ 1405/06/16","status":"قرارداد جدید","executive":"آقای محسنی","sourceRow":67,"uid":"1-67"},{"name":"فرشید کرمی گروسی","phone":"9188392306","area":"350","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"شهرک پردیس","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر سند رهنی","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":68,"uid":"1-68"},{"name":"شهناز سالاروند","phone":"9163677047","area":"145","ownership":"استیجاری","region":"ایلام/لرستان","regionalManager":"فارسی علی","city":"خرم اباد-بلوار ولایت","sales":"1200000000","location":"33.5153414,48.3535357","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز","status":"قرارداد جدید","executive":"آقای محسنی","sourceRow":69,"uid":"1-69"},{"name":"عباس اسدی","phone":"9360119620","area":"160","ownership":"استیجاری","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"شیبان","sales":"1400000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"نامه شهرداری","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":70,"uid":"1-70"},{"name":"کشتمند","phone":"9185700049","area":"135","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"شهرک بهداری","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین بعد از تایید لوکیشن","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":71,"uid":"1-71"},{"name":"عابد موسوی بیجار","phone":"9188777767","area":"140","ownership":"","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"بیجار","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ارسال لیست مدارک","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":72,"uid":"1-72"},{"name":"جبار مرعی","phone":"9161183237","area":"125","ownership":"مالک","region":"غرب خوزستان","regionalManager":"بختیاریان رضا","city":"اهواز-بلوار ارتش","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ارسال لیست مدارک","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":73,"uid":"1-73"},{"name":"محمدی مریوان","phone":"9121940995","area":"140","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"مریوان","sales":"1530000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ارسال لیست مدارک","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":74,"uid":"1-74"},{"name":"شاهگداری","phone":"9123878933","area":"231","ownership":"مالک","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"میدان مصدق","sales":"1620000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین بعد از تایید لوکیشن","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":75,"uid":"1-75"},{"name":"غلامی","phone":"9120704881","area":"150","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"چهارراه ارشاد","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ارسال لیست مدارک","status":"در حال تکمیل","executive":"آقای محسنی","sourceRow":76,"uid":"1-76"},{"name":"جاوید کاکایی","phone":"9111413292","area":"250","ownership":"استیجاری","region":"شرق گیلان","regionalManager":"پاشایی بهنام","city":"سیاهکل","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":2,"uid":"2-2"},{"name":"فاطمه بابائی","phone":"9364831502","area":"105","ownership":"استیجاری","region":"شرق گیلان","regionalManager":"پاشایی بهنام","city":"تنکابن","sales":"900000000","location":"36.8168268,50.8697882","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":3,"uid":"2-3"},{"name":"افشار نوایی ذمه","phone":"9143654679","area":"206","ownership":"مالک","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"ارومیه -دیزج","sales":"800000000","location":"37.21707916259766,44.92388153076172","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"توسط شرکت کنسل شد","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":4,"uid":"2-4"},{"name":"آرمین برهان","phone":"9146056650","area":"106+38","ownership":"استیجاری","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"ارومیه -خ آزادگان","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":5,"uid":"2-5"},{"name":"آرزو ناجی وش","phone":"9303500877","area":"101","ownership":"استیجاری","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"صوفیان","sales":"850000000","location":"38.2769177,45.9806913","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":6,"uid":"2-6"},{"name":"وحیده روح نواز","phone":"9352395669","area":"190","ownership":"استیجاری","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"فرانچایز خوی","sales":"800000000","location":"38.5752846,44.8437597","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":8,"uid":"2-8"},{"name":"بلال حمزه لو","phone":"9143966324","area":"500","ownership":"مالک","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"چایپاره","sales":"800000000","location":"38.8922123,45.0159001","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":9,"uid":"2-9"},{"name":"شعیبی","phone":"9146330820","area":"140","ownership":"استیجاری","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"خوی","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده است","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":10,"uid":"2-10"},{"name":"طاهر لو","phone":"9144899685","area":"132","ownership":"استیجاری","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"خوی","sales":"800000000","location":"38.5514426,44.9310333","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":11,"uid":"2-11"},{"name":"رجبی","phone":"9144632933","area":"180","ownership":"مالک","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"چالدران","sales":"950000000","location":"39.0646843,44.3872889","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":12,"uid":"2-12"},{"name":"محمد حیدرزادگان","phone":"9149399506","area":"120+90","ownership":"استیجاری","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"ماکو","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"در انتظار تخلیه فروشگاه توسط مستاجر -عدم پاسخگویی","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":13,"uid":"2-13"},{"name":"امید مختاری","phone":"9122023369","area":"150","ownership":"مالک","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"تکاب","sales":"1350000000","location":"36.4023019,47.1124397","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"سایت(تماس)","notes":"عدم امضای قرارداد(پیشبینی فروش)","status":"قرارداد جدید","executive":"آقای هم مسلک","sourceRow":14,"uid":"2-14"},{"name":"رضا فتحی پور","phone":"9199039290","area":"130","ownership":"مالک","region":"آذربایجان شرقی","regionalManager":"محجل - مناف‌زاده","city":"چارویماق","sales":"800000000","location":"37.1322007,46.9789909","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":15,"uid":"2-15"},{"name":"کسری نجفلو","phone":"9145021690","area":"157","ownership":"مالک","region":"آذربایجان شرقی","regionalManager":"محجل - مناف‌زاده","city":"میانه","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"ارزش گذاری-عدم پاسخگویی","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":16,"uid":"2-16"},{"name":"نبوی","phone":"9123657067","area":"194","ownership":"مالک","region":"آذربایجان شرقی","regionalManager":"محجل - مناف‌زاده","city":"هشترود","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"با منطقه صحبت شده-هنوز ملک تخلیه نشده است-امکان دارد زمانبر شود","status":"در حال تکمیل","executive":"آقای هم مسلک","sourceRow":17,"uid":"2-17"},{"name":"حمید عبدی اندرابی","phone":"9147383948","area":"95","ownership":"استیجاری","region":"آذربایجان شرقی","regionalManager":"محجل - مناف‌زاده","city":"سراب","sales":"850000000","location":"37.9378505,47.5291718","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":18,"uid":"2-18"},{"name":"محمد مهدی حسن زاده","phone":"9141037181","area":"175","ownership":"استیجاری","region":"آذربایجان شرقی","regionalManager":"محجل - مناف‌زاده","city":"سراب","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":19,"uid":"2-19"},{"name":"نیما امینی","phone":"9141740184","area":"210","ownership":"مالک","region":"آذربایجان شرقی","regionalManager":"محجل - مناف‌زاده","city":"مراغه","sales":"1100000000","location":"37.4032631,46.2665817","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":20,"uid":"2-20"},{"name":"افندی حسین زاده","phone":"9148542132","area":"305","ownership":"مالک","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"ارومیه-نوشین شهر","sales":"1000000000","location":"37.7429995,45.0496704","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":21,"uid":"2-21"},{"name":"مسعود پژومان","phone":"9143936647","area":"125","ownership":"استیجاری","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"ارومیه-صائب تبریز","sales":"1100000000","location":"37.5572286,45.0604595","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"منطقه","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای هم مسلک","sourceRow":22,"uid":"2-22"},{"name":"نفیسی","phone":"9143031605","area":"150","ownership":"مالک","region":"آذربایجان شرقی","regionalManager":"محجل - مناف‌زاده","city":"تبریز-ولیعصرجنوبی","sales":"900000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":23,"uid":"2-23"},{"name":"ناصر جبراییلی","phone":"9142504938","area":"120","ownership":"مالک","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"تبریز-آناخاتون","sales":"900000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل انصراف داد","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":24,"uid":"2-24"},{"name":"حسن حداد","phone":"9141415007","area":"205","ownership":"مالک","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"ارومیه-خ یاسر","sales":"1200000000","location":"37.5432119,45.0439892","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"ستادی به فرانچایز","status":"قرارداد جدید","executive":"آقای هم مسلک","sourceRow":25,"uid":"2-25"},{"name":"سلیمی","phone":"9148013110","area":"125","ownership":"مالک","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"بوکان-خ مولوی شرقی","sales":"1000000000","location":"36.5214459,46.2103654","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"درحال تجهیز(افتتاحیه در 1405/07/25)","status":"قرارداد جدید","executive":"آقای هم مسلک","sourceRow":26,"uid":"2-26"},{"name":"خلیل ریحانی","phone":"9144405914","area":"150","ownership":"مالک","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"ارومیه-خ صمدزاده","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده است","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":28,"uid":"2-28"},{"name":"باقر بهجتی","phone":"9379559669","area":"350","ownership":"استیجاری","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"خوی-چاپارخانه","sales":"1200000000","location":"38.5540959,44.9603123","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"درحال تجهیز","status":"قرارداد جدید","executive":"آقای هم مسلک","sourceRow":29,"uid":"2-29"},{"name":"سلیمانی","phone":"9022651256","area":"132","ownership":"مالک","region":"شرق خوزستان","regionalManager":"علی محمدی ساسان","city":"اهواز","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"سایت","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":30,"uid":"2-30"},{"name":"حامد سلیمانی","phone":"9141605769","area":"150","ownership":"مالک","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"خوی-شیخ نوایی","sales":"1250000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم تایید سند رهنی","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":31,"uid":"2-31"},{"name":"محمود حیدرنیا","phone":"9144617870","area":"180","ownership":"مالک","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"ماکو","sales":"1400000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"*","secondHand":"","referral":"","notes":"نامه شهرداری","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":32,"uid":"2-32"},{"name":"فیروز عباسی","phone":"9330532705","area":"145","ownership":"استیجاری","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"ارومیه-خیابان عمار","sales":"1200000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر لوکیشن جدید","status":"در حال تکمیل","executive":"آقای هم مسلک","sourceRow":33,"uid":"2-33"},{"name":"مهدی قربان زاده","phone":"9148425848","area":"170","ownership":"استیجاری","region":"آذربایجان غربی","regionalManager":"صادقی سعید","city":"ماکو-خیابان رسالت","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر لوکیشن جدید","status":"در حال تکمیل","executive":"آقای هم مسلک","sourceRow":34,"uid":"2-34"},{"name":"امید مختاری","phone":"9122023369","area":"180","ownership":"مالک","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"تکاب","sales":"900000000","location":"","identityDoc":"","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"سایت(تماس)","notes":"انعقاد قرارداد در تاریخ 1405/06/17","status":"قرارداد جدید","executive":"آقای هم مسلک","sourceRow":35,"uid":"2-35"},{"name":"علی لحافی","phone":"9365453318","area":"150","ownership":"استیجاری","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"ارومیه-سعدی","sales":"1450000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"کنسل شد(با مالک توافق نکرده)","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":37,"uid":"2-37"},{"name":"علی پویا","phone":"9920454367","area":"210","ownership":"استیجاری","region":"جنوب آذربایجان","regionalManager":"وجدان رضا","city":"ارومیه-بالو","sales":"1300000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"کنسل شد(نداشتن سند رهنی)","status":"کنسل شده","executive":"آقای هم مسلک","sourceRow":38,"uid":"2-38"},{"name":"حبیبی","phone":"9177029279","area":"150","ownership":"مالک","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"شیمی گیا","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-ساختمان در حال ساخت می باشد","status":"در حال تکمیل","executive":"آقای هم مسلک","sourceRow":39,"uid":"2-39"},{"name":"قائدی","phone":"9332913076","area":"120+60","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"بوشهر-بلوار یاسینی","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر ضمانت نامه بانکی-عدم پاسخگویی","status":"در حال تکمیل","executive":"آقای هم مسلک","sourceRow":40,"uid":"2-40"},{"name":"نجفی","phone":"9120795414","area":"150","ownership":"مالک","region":"شرق گیلان","regionalManager":"پاشایی بهنام","city":"رشت-سردار جنگل","sales":"1400000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"نامه شهرداری","status":"در حال تکمیل","executive":"آقای هم مسلک","sourceRow":41,"uid":"2-41"},{"name":"امیر حسین شابهرامی","phone":"9307598899","area":"196","ownership":"مالک","region":"مازندران","regionalManager":"اسگندری حجت","city":"چالوس","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ارسال مجدد لیست مدارک","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":2,"uid":"3-2"},{"name":"فرشاد دبیری","phone":"9022602999","area":"112.5","ownership":"مالک","region":"مازندران","regionalManager":"اسگندری حجت","city":"زیرآب","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"توانایی ارائه ضمانت ندارد","status":"کنسل شده","executive":"آقای محالی","sourceRow":3,"uid":"3-3"},{"name":"ابوالفضل رضایی","phone":"9027691327","area":"110","ownership":"مالک","region":"مازندران","regionalManager":"اسگندری حجت","city":"گلستان-کردکوی","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده","status":"کنسل شده","executive":"آقای محالی","sourceRow":4,"uid":"3-4"},{"name":"مرضیه کاتبی","phone":"9112714788","area":"120","ownership":"استیجاری","region":"مازندران","regionalManager":"اسگندری حجت","city":"گرگان-مدرس","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر لوکیشن جدید","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":5,"uid":"3-5"},{"name":"شهربانو مسلمی","phone":"9119504492","area":"105","ownership":"استیجاری","region":"مازندران","regionalManager":"اسگندری حجت","city":"محموداباد","sales":"900000000","location":"36.6203658,52.2654916","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":6,"uid":"3-6"},{"name":"رضا علی پاشا خیری","phone":"9198393765","area":"250","ownership":"مالک","region":"مازندران","regionalManager":"اسگندری حجت","city":"نوشهر","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"نامه شهرداری","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":7,"uid":"3-7"},{"name":"رزاق هوشیار جلودار","phone":"9112161006","area":"180","ownership":"مالک","region":"مازندران","regionalManager":"اسگندری حجت","city":"بابل","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده","status":"کنسل شده","executive":"آقای محالی","sourceRow":8,"uid":"3-8"},{"name":"محمد ضیایی","phone":"9119479247","area":"93","ownership":"مالک","region":"مازندران","regionalManager":"اسگندری حجت","city":"فرانچایز آزادشهر","sales":"800000000","location":"37.0903577,55.1731782","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":9,"uid":"3-9"},{"name":"بهنام ولی پور","phone":"9121949530","area":"150","ownership":"استیجاری","region":"مازندران","regionalManager":"اسگندری حجت","city":"آمل","sales":"950000000","location":"36.4603211,52.340575","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":10,"uid":"3-10"},{"name":"شهربانو مسلمی","phone":"9119504492","area":"105","ownership":"استیجاری","region":"مازندران","regionalManager":"اسگندری حجت","city":"محموداباد","sales":"900000000","location":"36.6203658,52.2654916","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":11,"uid":"3-11"},{"name":"منصور بابایی فر","phone":"9132811855","area":"200","ownership":"مالک","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"جونقان","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"بدهی مالیاتی دارد و عامل تردید دارد","status":"کنسل شده","executive":"آقای محالی","sourceRow":12,"uid":"3-12"},{"name":"شیرین عباسی هفشجانی","phone":"9130689029","area":"100","ownership":"مالک","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"هفشجان","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر تک برگ کردن سند است-مشکل مالی هم دارد-","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":13,"uid":"3-13"},{"name":"محمد نوری","phone":"9134874669","area":"150","ownership":"استیجاری","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"اصفهان","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم پاسخگویی طی تماس های مکرر-عامل پشیمان شده","status":"کنسل شده","executive":"آقای محالی","sourceRow":14,"uid":"3-14"},{"name":"حسین تقیان","phone":"9910333446","area":"170","ownership":"استیجاری","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"فرانچایز خوانسار","sales":"700000000","location":"33.25592084706089,50.31567937440411","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":15,"uid":"3-15"},{"name":"بهنام اسلامی","phone":"9131838529","area":"105","ownership":"مالک","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"شهرکرد","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده","status":"کنسل شده","executive":"آقای محالی","sourceRow":16,"uid":"3-16"},{"name":"مجید رحمانی","phone":"9133048001","area":"110+67","ownership":"مالک","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"مجلسی","sales":"1000000000","location":"32.1979098,51.4983329","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":17,"uid":"3-17"},{"name":"قاسمی","phone":"9132006225","area":"200","ownership":"مالک","region":"شرق اصفهان","regionalManager":"منجزی وند رضا","city":"خمینی شهر","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم تامین مالی برای ضمانت نامه و نداشتن سند","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":18,"uid":"3-18"},{"name":"حمیدرضا عابدی","phone":"9103864826","area":"200","ownership":"استیجاری","region":"شرق اصفهان","regionalManager":"منجزی وند رضا","city":"زیار","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"سند روستایی است","status":"کنسل شده","executive":"آقای محالی","sourceRow":19,"uid":"3-19"},{"name":"احمد احمدی","phone":"9352932940","area":"120","ownership":"استیجاری","region":"خراسان","regionalManager":"کلالی مهیار","city":"بجنورد","sales":"1000000000","location":"37.4707709,57.3187851","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":20,"uid":"3-20"},{"name":"محسن قاینی زاده","phone":"9151614467","area":"170","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"بیرجند","sales":"1300000000","location":"32.8644073,59.2350726","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":21,"uid":"3-21"},{"name":"آرزو محمدی","phone":"9150474062","area":"159","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"خوسف","sales":"1000000000","location":"32.8621859,58.9822767","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":22,"uid":"3-22"},{"name":"احمد دلشاد عظیمی","phone":"9155283608","area":"138","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"تربت جام-مفتح","sales":"840000000","location":"35.247915,60.6035923","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":23,"uid":"3-23"},{"name":"مهدی زنگویی مطلق","phone":"9155612123","area":"100","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"بیرجند","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"عدم پاسخگویی","status":"کنسل شده","executive":"آقای محالی","sourceRow":24,"uid":"3-24"},{"name":"وحید مسعودی زاده","phone":"9155281501","area":"240","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"تربت جام","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"انصراف عامل","status":"کنسل شده","executive":"آقای محالی","sourceRow":25,"uid":"3-25"},{"name":"سامان مهدی نژاد","phone":"9359781647","area":"200","ownership":"استیجاری","region":"خراسان","regionalManager":"کلالی مهیار","city":"بیرجند-خ غفاری","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"مراحل پایانی ضمانت نامه بانکی","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":26,"uid":"3-26"},{"name":"مصطفی عفتی","phone":"9308679503","area":"255","ownership":"استیجاری","region":"خراسان","regionalManager":"کلالی مهیار","city":"مشهد-توس","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر ضمانت نامه بانکی-عدم پاسخگویی","status":"کنسل شده","executive":"آقای محالی","sourceRow":27,"uid":"3-27"},{"name":"احمد دلشاد عظیمی","phone":"9155283608","area":"138","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"تربت جام-مفتح","sales":"840000000","location":"35.247915,60.6035923","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای محالی","sourceRow":28,"uid":"3-28"},{"name":"فرامرز یوسفی سنگانی","phone":"9153312402","area":"200","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"سنگان-امام خمینی","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل تردید دارد","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":29,"uid":"3-29"},{"name":"حسین شریفیان","phone":"9159590197","area":"126","ownership":"استیجاری","region":"خراسان","regionalManager":"کلالی مهیار","city":"بیرجند-مهرشهر","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم تایید لوکیشن فروشگاه","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":31,"uid":"3-31"},{"name":"میترا رشیدی","phone":"9151525960","area":"295+295","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"نیشابور","sales":"1300000000","location":"36.2037515,58.7964941","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"افتتاح شده(افتتاحیه در 1405/07/15)","status":"قرارداد جدید","executive":"آقای محالی","sourceRow":32,"uid":"3-32"},{"name":"اصغر طغیانی","phone":"9013948573","area":"170","ownership":"استیجاری","region":"شرق اصفهان","regionalManager":"منجزی وند رضا","city":"خوراسگان","sales":"1000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-عدم پاسخگویی","status":"کنسل شده","executive":"آقای محالی","sourceRow":33,"uid":"3-33"},{"name":"مرتضی نادری","phone":"9131816255","area":"144.5","ownership":"مالک","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"بروجن","sales":"1000000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ارزشگذاری","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":34,"uid":"3-34"},{"name":"سیدحسین شریفی شیر مردی","phone":"9103491552","area":"245+69","ownership":"استیجاری","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"مالخلیفه","sales":"1100000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"کنسل کرد","status":"کنسل شده","executive":"آقای محالی","sourceRow":35,"uid":"3-35"},{"name":"قاسم ظفریان","phone":"9136539137","area":"140","ownership":"استیجاری","region":"شرق اصفهان","regionalManager":"منجزی وند رضا","city":"بهارستان","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین بعد از تایید لوکیشن","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":36,"uid":"3-36"},{"name":"حسین کیهانیان","phone":"9131314397","area":"150","ownership":"مالک","region":"شرق اصفهان","regionalManager":"منجزی وند رضا","city":"نجف  آباد","sales":"1000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"کنسل کرد","status":"کنسل شده","executive":"آقای محالی","sourceRow":37,"uid":"3-37"},{"name":"موسی نیک سرشت","phone":"9159656194","area":"120","ownership":"استیجاری","region":"خراسان","regionalManager":"کلالی مهیار","city":"قائن-مبارزان","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"کنسل شد","status":"کنسل شده","executive":"آقای محالی","sourceRow":38,"uid":"3-38"},{"name":"شکوفه خبازان","phone":"9152545956","area":"153","ownership":"استیجاری","region":"خراسان","regionalManager":"کلالی مهیار","city":"بجنورد","sales":"1200000000","location":"37.469236,57.3361256","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز","status":"قرارداد جدید","executive":"آقای محالی","sourceRow":39,"uid":"3-39"},{"name":"صابر نیستانی","phone":"9910969488","area":"180","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"بجنورد-شهید چمران","sales":"1125000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای محالی","sourceRow":40,"uid":"3-40"},{"name":"حیدر دهقان","phone":"9117171600","area":"220","ownership":"مالک","region":"مازندران","regionalManager":"اسگندری حجت","city":"نور-چمستان","sales":"1300000000","location":"36.5321639,52.0395157","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"قرارداد نزد آقای قنبری","status":"قرارداد جدید","executive":"آقای محالی","sourceRow":41,"uid":"3-41"},{"name":"مهدی بابادی","phone":"9935853841","area":"140","ownership":"استیجاری","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"فارسان-میدان 22 بهمن","sales":"1400000000","location":"32.2645742,50.5630128","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز","status":"قرارداد جدید","executive":"آقای محالی","sourceRow":42,"uid":"3-42"},{"name":"سیروان عبدی","phone":"9191549038","area":"270","ownership":"استیجاری","region":"مازندران","regionalManager":"اسگندری حجت","city":"سلمانشهر","sales":"1700000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر عقد قرارداد با مالک-عدم پاسخگویی","status":"کنسل شده","executive":"آقای محالی","sourceRow":43,"uid":"3-43"},{"name":"امید جباری بدری","phone":"9138888378","area":"230","ownership":"استیجاری","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"شهرکرد-حافظ جنوبی","sales":"1100000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"در حال تکمیل مدارک(مدارک مربوط به وثیقه باقی مانده)","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":44,"uid":"3-44"},{"name":"همایون مسلمی نژاد","phone":"9134657381","area":"120","ownership":"استیجاری","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"سامان خیابان ذوب آهن","sales":"1100000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"کنسل شد","status":"کنسل شده","executive":"آقای محالی","sourceRow":45,"uid":"3-45"},{"name":"مهدی محمدی","phone":"9122127649","area":"500","ownership":"مالک","region":"غرب اصفهان","regionalManager":"بهنان مسعود","city":"گلپایگان-مطهری","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است-مایل به ستادی شدن","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":46,"uid":"3-46"},{"name":"گلزار","phone":"9153340164","area":"187","ownership":"مالک","region":"خراسان","regionalManager":"کلالی مهیار","city":"مشهد-سرافرازان","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"در حال تکمیل مدارک(مدارک مربوط به وثیقه باقی مانده)","status":"در حال تکمیل","executive":"آقای محالی","sourceRow":47,"uid":"3-47"},{"name":"منصور محمدی","phone":"9377926439","area":"137","ownership":"استیجاری","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"میناب","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"مدارک مربوط به سند رهنی باقی مانده-عدم پاسخگویی","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":2,"uid":"4-2"},{"name":"مسلم ملاح نسب","phone":"9190155827","area":"180","ownership":"مالک","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"قشم-چهارراه رسالت","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-عامل بابت ستادی شدن مغازه و فرانچایز تردید دارد","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":3,"uid":"4-3"},{"name":"حسین قنبری پور","phone":"9176549250","area":"150","ownership":"مالک","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"قلعه قاضی","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":4,"uid":"4-4"},{"name":"حسین احمدزاده حلوایی","phone":"9171664813","area":"364","ownership":"مالک","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"میناب-عباس پور","sales":"1000000000","location":"27.130243,57.087363","identityDoc":"*","storeDoc":"","pledgeDoc":"*","secondHand":"","referral":"","notes":"قرارداد نزد آقای قنبری","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":5,"uid":"4-5"},{"name":"پژمان ناوکی","phone":"9372844340","area":"168","ownership":"استیجاری","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"کهنوج-پاسداران","sales":"1000000000","location":"27.948292,57.70118","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":6,"uid":"4-6"},{"name":"ظفر عمادی خراجی","phone":"9179468377","area":"170","ownership":"مالک","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"هرمزگان رودان","sales":"850000000","location":"27.406430457671085,57.23640081888154","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":7,"uid":"4-7"},{"name":"راضیه زارعی منوجانی","phone":"9133490082","area":"160","ownership":"مالک","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"منوجان","sales":"1000000000","location":"27.4042354,57.4962907","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":8,"uid":"4-8"},{"name":"رئیسی","phone":"9192790498","area":"120","ownership":"استیجاری","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"کهنوج","sales":"700000000","location":"27.93539096801789,57.686790544052","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"درحال تجهیز(افتتاحیه در 1405/07/20)","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":9,"uid":"4-9"},{"name":"مجتبی انصاری","phone":"9179037949","area":"180","ownership":"مالک","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"میناب","sales":"1000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"سایت(تماس)","notes":"پیگیر ارائه سند رهنی-عدم پاسخگویی","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":10,"uid":"4-10"},{"name":"رونتن","phone":"9133874471","area":"200","ownership":"مالک","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"شهاب","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده است","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":11,"uid":"4-11"},{"name":"رویا علیرضایی(رسول بارچی نژاد)","phone":"9135015996","area":"150+50","ownership":"مالک","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"نجف شهر","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"*","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین-عدم پاسخگویی","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":12,"uid":"4-12"},{"name":"حسن پریش","phone":"9139944485","area":"170","ownership":"مالک","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"رفسنجان","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل تردید دارد","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":13,"uid":"4-13"},{"name":"حامد زینعلی","phone":"9133742093","area":"120","ownership":"مالک","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"یزد-مدرس","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":14,"uid":"4-14"},{"name":"نارویی","phone":"9900608248","area":"300","ownership":"مالک","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"ریگان-آزادگان","sales":"","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"نامه شهرداری-عدم پاسخگویی","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":15,"uid":"4-15"},{"name":"محسن اردکانی","phone":"9135189757","area":"230","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"اردکان","sales":"2000000000","location":"32.297371,54.022032","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":16,"uid":"4-16"},{"name":"آزاده شیخ اسدی","phone":"9135830858","area":"130","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"کرمان","sales":"850000000","location":"30.26657/57.11956","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":17,"uid":"4-17"},{"name":"ساویش داوودی","phone":"9129625699","area":"165","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"آسیاباد","sales":"850000000","location":"30.2733/57.06963","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":18,"uid":"4-18"},{"name":"شاهرخ کوچک","phone":"9381960377","area":"135","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"بم","sales":"1140000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"منطقه","notes":"پیگیر رفع بازداشت سند رهنی-عدم پاسخگویی","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":19,"uid":"4-19"},{"name":"ناصر مرادی","phone":"9339172050","area":"150","ownership":"مالک","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"قائمیه","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"به دلیل نزدیک بودن به فروشگاه الماسی از جانب منطقه کنسل میباشد.","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":20,"uid":"4-20"},{"name":"ابراهیم شجاعی","phone":"9173415288","area":"180","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"کهکیلوییه-یاسوج","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"لوکیشن جدید ارسال کرده و مدیر منطقه باید تایید کند-در انتظار اجاره کردن ملک","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":21,"uid":"4-21"},{"name":"ربانی","phone":"9173211003","area":"140","ownership":"مالک","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"کازرون-بلوار قدمگاه","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل تردید دارد","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":22,"uid":"4-22"},{"name":"مهدی مدیری","phone":"9173427487","area":"191","ownership":"مالک","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"فرانچایز لیکک","sales":"800000000","location":"30.892484296116802,50.09170969302719","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":23,"uid":"4-23"},{"name":"ملایم","phone":"9173094500","area":"130","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"صدرا","sales":"1000000000","location":"29.7896202,52.525344","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":24,"uid":"4-24"},{"name":"خرمگاه","phone":"9140463952","area":"170","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"ابیاری","sales":"1100000000","location":"29.611968,52.5118314","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":25,"uid":"4-25"},{"name":"حسام","phone":"9394888754","area":"201","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"کنگان","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-عدم پاسخگویی","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":26,"uid":"4-26"},{"name":"ابوذر الماسی","phone":"9129174082","area":"130","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"فرانچایز قائمیه","sales":"600000000","location":"29.8435479,51.601113","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":27,"uid":"4-27"},{"name":"روح الله رضایی","phone":"9121194009","area":"218","ownership":"مالک","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"فرانچایز گناوه","sales":"900000000","location":"29.5787163,50.5110982","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":28,"uid":"4-28"},{"name":"فتح الله اقا جری","phone":"9168408526","area":"200","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"دیلم","sales":"1100000000","location":"30.0530713,50.1569127","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"توسط عامل کنسل شد","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":29,"uid":"4-29"},{"name":"ملایم","phone":"9173094500","area":"130","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"صدرا","sales":"1000000000","location":"29.7896202,52.525344","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":30,"uid":"4-30"},{"name":"جمیر","phone":"9172732022","area":"120","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"گناوه","sales":"1100000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"منطقه","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":31,"uid":"4-31"},{"name":"سامان ساتیاری","phone":"9374987641","area":"180","ownership":"مالک","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"فرانچایز فیروزآباد","sales":"900000000","location":"28.8578671,52.5703999","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":32,"uid":"4-32"},{"name":"احمدی","phone":"9171119992","area":"180+100","ownership":"مالک","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"شیراز-امیرکبیر","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر رفع مشکل دارایی-عدم پاسخگویی","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":33,"uid":"4-33"},{"name":"هادی جدیدی","phone":"9173151936","area":"190","ownership":"استیجاری","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"خانزنیان","sales":"1200000000","location":"29.6713276,52.1440061","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":34,"uid":"4-34"},{"name":"رقیه عادل","phone":"9178407368","area":"127","ownership":"استیجاری","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"فسا","sales":"500000000","location":"28.9536136,53.6376906","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":35,"uid":"4-35"},{"name":"میلاد نامجو","phone":"9393945087","area":"100+60","ownership":"استیجاری","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"استهبان","sales":"1100000000","location":"29.12324937860699,54.03562106115146","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز(افتتاحیه در 1405/07/20)","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":36,"uid":"4-36"},{"name":"محمد حسین حاتم","phone":"9171322797","area":"184","ownership":"استیجاری","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"نیریز","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-عدم پاسخگویی","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":37,"uid":"4-37"},{"name":"فردین رنجبر","phone":"9172930746","area":"180","ownership":"استیجاری","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"داراب","sales":"1200000000","location":"28.763241,54.5562021","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":38,"uid":"4-38"},{"name":"رحیم بخش بلوچ","phone":"9919068225","area":"700","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"نیک شهر","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"دنبال ملک جدید است","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":39,"uid":"4-39"},{"name":"عمار شیرانی","phone":"9155466762","area":"400","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"چابهار","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"دنبال لوکیشن جدید است","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":41,"uid":"4-41"},{"name":"اسحاق بیجار زهی","phone":"9151954590","area":"156","ownership":"مالک","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"چابهار","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر اخذ ضمانت نامه بانکی-عدم پاسخگویی","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":42,"uid":"4-42"},{"name":"محسن عرب","phone":"9913585760","area":"432","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"فرانچایز زابل","sales":"600000000","location":"31.036988,61.498304","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":43,"uid":"4-43"},{"name":"سارا مرادقلی","phone":"9157311565","area":"110","ownership":"مالک","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"فرانچایز زاهدان","sales":"600000000","location":"29.4658141,60.834507","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":44,"uid":"4-44"},{"name":"بهمن پورمندانی","phone":"9155402147","area":"130","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"فرانچایز چابهار","sales":"850000000","location":"25.2985132,60.6976543","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":45,"uid":"4-45"},{"name":"محمدصادق امیریان","phone":"9151490425","area":"170","ownership":"مالک","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"بمپور","sales":"750000000","location":"27.195397,60.446516","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":46,"uid":"4-46"},{"name":"محمد رضا راشکی","phone":"9151444365","area":"200","ownership":"مالک","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"زابل","sales":"750000000","location":"31.0219496,61.5062485","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":47,"uid":"4-47"},{"name":"زرخاتون چاری زهی","phone":"9158740662","area":"135","ownership":"مالک","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"ایرانشهر","sales":"750000000","location":"27.2162/60.68251","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":48,"uid":"4-48"},{"name":"الهام سامعی","phone":"9337267313","area":"120","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"زاهدان-انقلاب","sales":"750000000","location":"29.4968148,60.8236716","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":49,"uid":"4-49"},{"name":"محمدرضا کل کلی","phone":"9155470968","area":"172+36","ownership":"مالک","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"مهرستان","sales":"900000000","location":"27.1310399,61.6725533","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"درحال تجهیز(افتتاحیه در 1405/07/25)","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":50,"uid":"4-50"},{"name":"مهرداد امراء","phone":"9390048883","area":"150","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"سراوان","sales":"900000000","location":"27.3756627,62.3348846","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"درحال تجهیز","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":51,"uid":"4-51"},{"name":"زرخاتون چاری زهی","phone":"9158740662","area":"135","ownership":"مالک","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"ایرانشهر","sales":"750000000","location":"27.2162/60.68251","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":52,"uid":"4-52"},{"name":"عابد بلوچی","phone":"9902750092","area":"200","ownership":"مالک","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"نیک شهر","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"نداشتن سند رهنی مورد تایید","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":53,"uid":"4-53"},{"name":"مریم بختیاری شهری","phone":"9158466458","area":"220","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"زاهدان-خیابان شورا","sales":"","location":"29.4589551,60.883303","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم امضای قرارداد(پیشبینی فروش)","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":54,"uid":"4-54"},{"name":"محمدرضا کل کلی","phone":"9155470968","area":"172+36","ownership":"مالک","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"مهرستان","sales":"900000000","location":"27.1310399,61.6725533","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"درحال تجهیز(افتتاحیه در 1405/07/25)","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":56,"uid":"4-56"},{"name":"بهروز کریم زاده","phone":"9153457279","area":"105","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"چابهار","sales":"750000000","location":"25.292495,60.649901","identityDoc":"","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"سایت(تماس)","notes":"عدم امضای قرارداد(پیشبینی فروش)","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":57,"uid":"4-57"},{"name":"مجید سالاری","phone":"9307785007","area":"200","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"زاهدان-خ جمهوری","sales":"750000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":58,"uid":"4-58"},{"name":"مرتضی ریگی","phone":"9159586187","area":"170","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"چابهار-گلشهر","sales":"750000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"در انتظار تایید لوکیشن توسط منطقه","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":59,"uid":"4-59"},{"name":"رضا مسلمی","phone":"9392398203","area":"180","ownership":"استیجاری","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"میناب-هشتبندی","sales":"1200000000","location":"27.1557054,57.4490744","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":60,"uid":"4-60"},{"name":"سعید راهپیما","phone":"9378966436","area":"250","ownership":"استیجاری","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"بنارویه","sales":"1200000000","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"به دلیل عدم تامین مالی پشیمان شده است","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":61,"uid":"4-61"},{"name":"محمدرضا رازقی","phone":"9369573875","area":"120","ownership":"مالک","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"فسا","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین بعد از تایید","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":62,"uid":"4-62"},{"name":"خانی زاده","phone":"9176998593","area":"120","ownership":"استیجاری","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"مشکان","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم تایید سند رهنی","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":63,"uid":"4-63"},{"name":"طاهریان","phone":"9195999701","area":"110","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"دیلم","sales":"1000000000","location":"30.053275,50.15689600000001","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":64,"uid":"4-64"},{"name":"حسن نصیریان","phone":"9132524863","area":"250","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"یزد-زارچ","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر لوکیشن جدید","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":66,"uid":"4-66"},{"name":"میلاد دین دار","phone":"9367852705","area":"200","ownership":"استیجاری","region":"شرق فارس","regionalManager":"بهادری مرتضی","city":"نی ریز","sales":"1300000000","location":"29.1974396,54.3313183","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین بعد از تایید","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":67,"uid":"4-67"},{"name":"تره ماه محمودی","phone":"9139548020","area":"220","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"یزد-هرات","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم تایید سند رهنی","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":68,"uid":"4-68"},{"name":"فرخیان","phone":"9178446072","area":"200","ownership":"مالک","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"یاسوج-بلوار آزادگان","sales":"1100000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"کنسل کرد","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":69,"uid":"4-69"},{"name":"جواد مظلومی اردکانی","phone":"9131529181","area":"150+20","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"یزد-اردکان","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین بعد از تایید","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":70,"uid":"4-70"},{"name":"یوسف ملازهی","phone":"9158735427","area":"120","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"سراوان-خلفای راشدین","sales":"900000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":71,"uid":"4-71"},{"name":"دلاور کریمی","phone":"9155477968","area":"200","ownership":"استیجاری","region":"سیستان و بلوچستان","regionalManager":"اثنی عشری حسین","city":"سراوان-امام خمینی","sales":"900000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم تایید سند رهنی","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":72,"uid":"4-72"},{"name":"خرمگاه","phone":"9140463952","area":"170","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"ابیاری","sales":"1100000000","location":"29.611968,52.5118314","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای حسینی نسب","sourceRow":73,"uid":"4-73"},{"name":"حامد زینلی","phone":"9133742093","area":"120","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"یزد-مقداد","sales":"1000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":74,"uid":"4-74"},{"name":"عرفان خانه زر","phone":"9140320612","area":"320","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"کهنوج-بلوار شاهد","sales":"1100000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ملک فروشگاه 6 ماه دیگر تخلیه می شود","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":77,"uid":"4-77"},{"name":"نوری","phone":"9120314915","area":"120+120","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"بوشهر-بلوار بهشت صادق","sales":"1300000000","location":"28.9592854,50.8488447","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تایید لوکیشن جدید","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":78,"uid":"4-78"},{"name":"حبیبی","phone":"9177029279","area":"150","ownership":"مالک","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"شیمی گیا","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-ساختمان در حال ساخت می باشد","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":79,"uid":"4-79"},{"name":"قائدی","phone":"9332913076","area":"120+60","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"بوشهر-بلوار یاسینی","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر ضمانت نامه بانکی-عدم پاسخگویی","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":80,"uid":"4-80"},{"name":"فاطمه موسوی پور(خرمگا)","phone":"9177447057","area":"215","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"یاسوج-اکبرآباد","sales":"1100000000","location":"185","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"انعقاد قرارداد در تاریخ 1405/06/15","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":81,"uid":"4-81"},{"name":"حسین احمدزاده حلوایی","phone":"9171664813","area":"364","ownership":"مالک","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"میناب-عباس پور","sales":"","location":"27.130243,57.087363","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"انعقاد قرارداد در تاریخ 1405/06/17","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":82,"uid":"4-82"},{"name":"طاهریان","phone":"9195999701","area":"110","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"دیلم","sales":"1000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین تاریخ ترهین","status":"قرارداد جدید","executive":"آقای حسینی نسب","sourceRow":83,"uid":"4-83"},{"name":"حمیده بدوئی","phone":"9136351691","area":"130","ownership":"استیجاری","region":"کرمان","regionalManager":"اتحاد مصطفی","city":"کهنوج-ولیعصر","sales":"1200000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ارسال لیست مدارک","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":84,"uid":"4-84"},{"name":"یاسین بهزادی","phone":"9171851699","area":"400","ownership":"استیجاری","region":"غرب فارس","regionalManager":"عابد مجتبی","city":"لامرد-خیابان سپاه","sales":"1500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم پاسخگویی","status":"کنسل شده","executive":"آقای حسینی نسب","sourceRow":86,"uid":"4-86"},{"name":"علی ده کهان","phone":"9053645587","area":"450","ownership":"مالک","region":"هرمزگان و جنوب کرمان","regionalManager":"حسن زاده سید امین","city":"کهنوج-ناصر آباد","sales":"1300000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم تایید سند رهنی","status":"در حال تکمیل","executive":"آقای حسینی نسب","sourceRow":87,"uid":"4-87"},{"name":"زهرا بلوچ","phone":"9121311309","area":"130","ownership":"مالک","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"گرمسار","sales":"1000000000","location":"35.2223838,52.3353749","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای نوری","sourceRow":2,"uid":"5-2"},{"name":"مجتبی ایزدی","phone":"9128511685","area":"150","ownership":"استیجاری","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"قم-عطاران","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای نوری","sourceRow":4,"uid":"5-4"},{"name":"رستمی","phone":"9189408409","area":"170","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"سرابله","sales":"1000000000","location":"33.7681516,46.5629647","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای نوری","sourceRow":5,"uid":"5-5"},{"name":"ابن علی","phone":"9109861886","area":"250","ownership":"استیجاری","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"گرمسار-طالقانی","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده","status":"کنسل شده","executive":"آقای نوری","sourceRow":6,"uid":"5-6"},{"name":"حسین کریمیان پور","phone":"9104884273","area":"240","ownership":"استیجاری","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"مهدیشهر","sales":"1400000000","location":"35.7059437,53.3513202","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"ok","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای نوری","sourceRow":7,"uid":"5-7"},{"name":"رستمی","phone":"9189408409","area":"170","ownership":"استیجاری","region":"کرمانشاه","regionalManager":"مرزبان یزدان","city":"سرابله","sales":"1000000000","location":"33.7681516,46.5629647","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای نوری","sourceRow":8,"uid":"5-8"},{"name":"علیرضا ملکی","phone":"9127615632","area":"150","ownership":"استیجاری","region":"البرز/الوند","regionalManager":"سلمان زاده کیوان","city":"نظر اباد","sales":"","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل پشیمان شده است","status":"کنسل شده","executive":"آقای نوری","sourceRow":9,"uid":"5-9"},{"name":"معصومه جمالی","phone":"9126156603","area":"175","ownership":"مالک","region":"اسلامشهر/ساوه","regionalManager":"دشت افکن مهدی","city":"ساوه غرق اباد","sales":"700000000","location":"35.1075852,49.8299818","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای نوری","sourceRow":10,"uid":"5-10"},{"name":"محمدیان","phone":"9129442314","area":"160","ownership":"مالک","region":"اسلامشهر/ساوه","regionalManager":"دشت افکن مهدی","city":"اسلامشهر","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تا آذر ماه مستاجر دارد و بعد از آن قرارداد با شرکت میبندد","status":"کنسل شده","executive":"آقای نوری","sourceRow":11,"uid":"5-11"},{"name":"محمد علیزاده","phone":"9122561580","area":"180","ownership":"مالک","region":"اسلامشهر/ساوه","regionalManager":"دشت افکن مهدی","city":"ساوه","sales":"","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم پاسخگویی","status":"کنسل شده","executive":"آقای نوری","sourceRow":12,"uid":"5-12"},{"name":"روح اله نعمتی","phone":"9122550141","area":"250","ownership":"مالک","region":"اسلامشهر/ساوه","regionalManager":"دشت افکن مهدی","city":"نوبران","sales":"1200000000","location":"35.1320191,49.7103539","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای نوری","sourceRow":13,"uid":"5-13"},{"name":"معصومه قربانی","phone":"9120686035","area":"140","ownership":"مالک","region":"اسلامشهر/ساوه","regionalManager":"دشت افکن مهدی","city":"ساوه-امیرکبیر","sales":"","location":"35.0391861,50.3720854","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز","status":"قرارداد جدید","executive":"آقای نوری","sourceRow":14,"uid":"5-14"},{"name":"احسان جلالی","phone":"9122563680","area":"170","ownership":"استیجاری","region":"اسلامشهر/ساوه","regionalManager":"دشت افکن مهدی","city":"ساوه-میدان شهرداری","sales":"1100000000","location":"35.0190379,50.367937","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"افتتاح شده","status":"قرارداد شده","executive":"آقای نوری","sourceRow":15,"uid":"5-15"},{"name":"ابراهیم اسفندیار","phone":"9124207155","area":"180","ownership":"مالک","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"فیروزکوه","sales":"800000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عدم ارسال مدارک-عدم پاسخگویی","status":"کنسل شده","executive":"آقای نوری","sourceRow":16,"uid":"5-16"},{"name":"جمال لطفی","phone":"9104558806","area":"240","ownership":"استیجاری","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"فیروزکوه-سلیمانی","sales":"1300000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"در انتظار تامین مالی-خبر میدهد","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":17,"uid":"5-17"},{"name":"محمد نحوی","phone":"9191981254","area":"110","ownership":"استیجاری","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"قم-مالک اشتر","sales":"1000000000","location":"34.6414647,50.8602924","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"","referral":"","notes":"قرارداد نزد آقای قنبری","status":"قرارداد جدید","executive":"آقای نوری","sourceRow":18,"uid":"5-18"},{"name":"سعید نائینی پور","phone":"9122335739","area":"120","ownership":"استیجاری","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"قم-خ شهید کرمی","sales":"1250000000","location":"34.6462363,50.8661104","identityDoc":"*","storeDoc":"*","pledgeDoc":"*","secondHand":"ok","referral":"","notes":"درحال تجهیز(افتتاحیه در 1405/07/29)","status":"قرارداد جدید","executive":"آقای نوری","sourceRow":19,"uid":"5-19"},{"name":"محمدمهدی زارع","phone":"9214312284","area":"130","ownership":"استیجاری","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"قم-شهرک قدس","sales":"1400000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پیگیر سند رهنی","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":20,"uid":"5-20"},{"name":"رضا مددی","phone":"9059774377","area":"140","ownership":"استیجاری","region":"البرز/الوند","regionalManager":"سلمان زاده کیوان","city":"نظرآباد-شهدای شمالی","sales":"1300000000","location":"35.9527208,50.6062181","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"درحال تجهیز(افتتاحیه در 1405/07/29)","status":"قرارداد جدید","executive":"آقای نوری","sourceRow":21,"uid":"5-21"},{"name":"اصغر رستمی","phone":"9217008393","area":"105","ownership":"مالک","region":"اسلامشهر/ساوه","regionalManager":"دشت افکن مهدی","city":"نسیم شهر","sales":"1000000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"سند رهنی روستایی","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":22,"uid":"5-22"},{"name":"آقاسی","phone":"9124820468","area":"140","ownership":"مالک","region":"البرز/الوند","regionalManager":"سلمان زاده کیوان","city":"قزوین-سلطان آباد","sales":"1000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"عامل تردید دارد-پشیمان شده","status":"کنسل شده","executive":"آقای نوری","sourceRow":23,"uid":"5-23"},{"name":"امیرحسین عرب سلمانی","phone":"9125751321","area":"116","ownership":"مالک","region":"شرق تهران","regionalManager":"جعفری رضا","city":"تهران","sales":"2500000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ارسال لیست مدارک","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":25,"uid":"5-25"},{"name":"وحید چمنی","phone":"9190663009","area":"140","ownership":"استیجاری","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"قم-خیابان صدوقی","sales":"1400000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای نوری","sourceRow":26,"uid":"5-26"},{"name":"مهدی احمدیان","phone":"9123382812","area":"250","ownership":"مالک","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"شهر ری","sales":"2000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تغییر لوکیشن فروشگاه","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":27,"uid":"5-27"},{"name":"شمسی فخرآور(قویدل)","phone":"9122715819","area":"190","ownership":"مالک","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"فیروزکوه","sales":"","location":"","identityDoc":"","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"انعقاد قرارداد در تاریخ 1405/06/16","status":"قرارداد جدید","executive":"آقای نوری","sourceRow":28,"uid":"5-28"},{"name":"علی اصغر مطیع","phone":"9104998341","area":"200","ownership":"استیجاری","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"خیابان امام زاده ابراهیم","sales":"1250000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"به دنبال لوکیشن جدید","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":29,"uid":"5-29"},{"name":"قربانعلی احمدلو","phone":"9127394615","area":"120","ownership":"مالک","region":"شرق تهران","regionalManager":"جعفری رضا","city":"بومهن-بلوار امام","sales":"2000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"ارسال لیست مدارک","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":30,"uid":"5-30"},{"name":"محمدی","phone":"9125427452","area":"120+40","ownership":"مالک","region":"البرز/الوند","regionalManager":"سلمان زاده کیوان","city":"ابهر-خیابان ولیعصر","sales":"1300000000","location":"","identityDoc":"*","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"نامه شهرداری","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":31,"uid":"5-31"},{"name":"مالمیر","phone":"9191881580","area":"100+50","ownership":"","region":"البرز/الوند","regionalManager":"سلمان زاده کیوان","city":"قزوین-محمودآباد","sales":"1100000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"پشیمان شده است","status":"کنسل شده","executive":"آقای نوری","sourceRow":32,"uid":"5-32"},{"name":"جانی","phone":"9121825505","area":"220","ownership":"مالک","region":"البرز/الوند","regionalManager":"سلمان زاده کیوان","city":"قزوین-مهرگان","sales":"1700000000","location":"","identityDoc":"*","storeDoc":"*","pledgeDoc":"","secondHand":"","referral":"","notes":"تعیین قرار ترهین در تاریخ بعد از تایید","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":33,"uid":"5-33"},{"name":"شجاعی","phone":"9357510455","area":"250+100","ownership":"استیجاری","region":"البرز/الوند","regionalManager":"سلمان زاده کیوان","city":"هشتگرد-تنکمان","sales":"1300000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"استعلام سند","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":35,"uid":"5-35"},{"name":"مهدی احمدیان","phone":"9123382812","area":"250","ownership":"مالک","region":"ری/سمنان","regionalManager":"پوررجبی امید","city":"شهر ری","sales":"2000000000","location":"","identityDoc":"","storeDoc":"","pledgeDoc":"","secondHand":"","referral":"","notes":"تغییر لوکیشن فروشگاه","status":"در حال تکمیل","executive":"آقای نوری","sourceRow":36,"uid":"5-36"}];
+const STATUS_ORDER=['قرارداد جدید','در حال تکمیل','قرارداد شده','کنسل شده'];
+const COLORS={'قرارداد جدید':'#76a9fc','در حال تکمیل':'#ffc071','قرارداد شده':'#4fd4ae','کنسل شده':'#fc758a'};
+const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const norm=v=>String(v??'').replace(/[ي]/g,'ی').replace(/[ك]/g,'ک').replace(/[\u200c\u200d\u200e\u200f\ufeff]/g,' ').replace(/\s+/g,' ').trim();
+const latin=v=>norm(v).replace(/[۰-۹]/g,c=>String(c.charCodeAt(0)-1776)).replace(/[٠-٩]/g,c=>String(c.charCodeAt(0)-1632));
+const count=v=>Number(v||0).toLocaleString('fa-IR');
+const has=v=>!!norm(v)&&!['-','0','خیر','ندارد','false'].includes(norm(v).toLowerCase());
+const byId=id=>document.getElementById(id);
+let records=SNAPSHOT.map(o=>({...o}));let ui={executive:'',region:'',status:'',doc:'all',sort:'default',term:'',page:1};let loading=false;let currentMatches=[];
+const groups=(arr,key)=>{const m=new Map();arr.forEach(d=>{const k=key(d);m.set(k,(m.get(k)||0)+1)});return Array.from(m,([key,value])=>({key,value})).sort((a,b)=>b.value-a.value||a.key.localeCompare(b.key,'fa'))};
+function scoped(onlyExec=false){return records.filter(x=>(!ui.executive||x.executive===ui.executive)&&(onlyExec||!ui.region||x.region===ui.region))}
+function subset(){return scoped().filter(x=>(!ui.status||x.status===ui.status)&&(ui.doc==='all'||(ui.doc==='missing'?!allDocs(x):allDocs(x)))&&(!ui.term||norm([x.name,x.phone,x.region,x.city,x.regionalManager,x.notes,x.executive].join(' ')).toLowerCase().includes(norm(ui.term).toLowerCase())))}
+function docNum(r){return ['identityDoc','storeDoc','pledgeDoc'].filter(k=>has(r[k])).length}
+function allDocs(r){return docNum(r)===3}
+function showRegion(region){ui.region=region;ui.status='';ui.page=1;render();document.querySelector('.main').scrollIntoView({behavior:'smooth',block:'start'})}
+function buildSelectOptions(items,initialLabel,val){return `<option value="">${initialLabel}</option>`+items.map(x=>`<option value="${esc(x)}" ${x===val?'selected':''}>${esc(x)}</option>`).join('')}
+function filters(){const ms=[...new Set(records.map(r=>r.executive))];if(ui.executive&&!ms.includes(ui.executive))ui.executive='';byId('execFilter').innerHTML=buildSelectOptions(TAB_NAMES.filter(m=>ms.includes(m)),'تمام مدیران اجرایی',ui.executive);const ex=scoped(true);const rg=groups(ex,r=>r.region);if(ui.region&&!rg.some(x=>x.key===ui.region))ui.region='';byId('regionFilter').innerHTML=buildSelectOptions(rg.map(x=>x.key),'تمام مناطق',ui.region);byId('regionNav').innerHTML=`<button class="side-region ${!ui.region?'active':''}" data-region=""><span>تمام مناطق</span><b>${count(ex.length)}</b></button>`+rg.map(x=>`<button class="side-region ${ui.region===x.key?'active':''}" data-region="${esc(x.key)}"><span>${esc(x.key)}</span><b>${count(x.value)}</b></button>`).join('');byId('sideCount').textContent=count(rg.length)}
+function kpiHTML(label,val,sub,icon,color,st){return `<div class="kpi" ${st?`data-kpi-status="${esc(st)}" style="cursor:pointer"`:''}><div class="kpi-top"><span>${label}</span><span class="kpi-icon" style="color:${color}">${icon}</span></div><div class="kpi-value number">${count(val)}</div><div class="kpi-sub">${sub}</div></div>`}
+function renderOverview(){const arr=scoped(),all=arr.length;const counts=Object.fromEntries(STATUS_ORDER.map(s=>[s,arr.filter(r=>r.status===s).length]));const regions=[...new Set(arr.map(r=>r.region))];byId('headline').textContent=ui.region?`وضعیت قراردادهای ${ui.region}`:'داشبورد وضعیت قراردادهای فرانچایز';byId('headlineDesc').textContent=ui.region?`پرونده‌های ${ui.region} · ${ui.executive||'تمام مدیران اجرایی'} · گزارش مرحله، مدارک و پیگیری`:`گزارش یکپارچه ${count(regions.length)} منطقه و پنج مدیر اجرایی؛ مرحله قرارداد، مدارک و موارد قابل پیگیری`;byId('regionCountBadge').textContent=count(regions.length);byId('kpiBox').innerHTML=kpiHTML('کل پرونده‌ها',all,'در محدوده انتخاب‌شده','▦','#bdd0ec')+kpiHTML('قرارداد جدید',counts['قرارداد جدید'],'شروع فرآیند قرارداد','◇','#8ab2ff','قرارداد جدید')+kpiHTML('در حال تکمیل',counts['در حال تکمیل'],'نیازمند تکمیل اقدامات','◷','#ffc577','در حال تکمیل')+kpiHTML('قرارداد شده',counts['قرارداد شده'],'به مرحله قرارداد رسیده','✓','#6ee1bd','قرارداد شده')+kpiHTML('کنسل شده',counts['کنسل شده'],'پرونده‌های متوقف‌شده','×','#ff94a0','کنسل شده');
+let pos=0;const pieces=STATUS_ORDER.map(s=>{const v=all?counts[s]/all*100:0;const start=pos;pos+=v;return `${COLORS[s]} ${start}% ${pos}%`});byId('statusDonut').style.background=all?`conic-gradient(from -90deg,${pieces.join(',')})`:'#23354d';byId('donutTotal').textContent=count(all);byId('statusLegend').innerHTML=STATUS_ORDER.map(s=>`<button type="button" class="legend-row" data-status="${esc(s)}"><i class="color-dot" style="background:${COLORS[s]}"></i><span>${s}</span><strong>${count(counts[s])}</strong></button>`).join('');byId('activeTag').textContent=ui.status||'همه پرونده‌ها';byId('statusBars').innerHTML=STATUS_ORDER.map(s=>`<div class="st-row"><span>${s}</span><div class="st-track"><div class="st-fill" style="width:${all?counts[s]*100/all:0}%;background:${COLORS[s]}"></div></div><b>${count(counts[s])}</b></div>`).join('');
+const active=arr.filter(r=>['قرارداد جدید','در حال تکمیل'].includes(r.status)),missing=active.filter(r=>!allDocs(r)).length,conflicts=arr.filter(r=>/عدم|مشکل|نقص|تایید|تأیید|رهن|پیگیر|منتظر|نرسیده/.test(norm(r.notes))&&active.includes(r)).length;const withLocation=arr.filter(r=>has(r.location)).length;byId('signalBox').innerHTML=`<div class="strip-card"><span>پرونده‌های فعال با مدارک ناقص</span><strong style="color:#ffbf70">${count(missing)}</strong><small>از ${count(active.length)} پرونده جدید یا در حال تکمیل</small></div><div class="strip-card"><span>پرونده‌های فعال با نشانه پیگیری در توضیحات</span><strong style="color:#abb9ff">${count(conflicts)}</strong><small>تشخیص تقریبی از متن توضیحات؛ نیازمند بازبینی</small></div><div class="strip-card"><span>پرونده‌های دارای لوکیشن ثبت‌شده</span><strong style="color:#65d8b6">${count(withLocation)}</strong><small>${all?Math.round(withLocation/all*100):0}٪ از پرونده‌های قابل مشاهده</small></div>`;
+const regionalRows=groups(scoped(true),r=>r.region);let base=ui.region?regionalRows.filter(x=>x.key===ui.region):regionalRows;byId('regionRows').innerHTML=base.map(({key,value})=>{const q=scoped(true).filter(r=>r.region===key);const cnt=Object.fromEntries(STATUS_ORDER.map(s=>[s,q.filter(r=>r.status===s).length]));return `<tr><td><button data-region="${esc(key)}">${esc(key)}</button></td><td class="metric"><button data-region="${esc(key)}" data-status="">${count(value)}</button></td>${STATUS_ORDER.map(s=>`<td class="metric"><button data-region="${esc(key)}" data-status="${esc(s)}" title="مشاهده پرونده‌های ${s}">${count(cnt[s])}</button></td>`).join('')}<td><div class="stackedbar">${STATUS_ORDER.map(s=>`<i style="background:${COLORS[s]};width:${value?cnt[s]*100/value:0}%"></i>`).join('')}</div></td></tr>`}).join('')||`<tr><td class="empty" colspan="7">برای این فیلتر منطقه‌ای وجود ندارد</td></tr>`}
+function renderTable(){const statuses=[{label:'همه پرونده‌ها',value:''},...STATUS_ORDER.map(x=>({label:x,value:x}))];byId('statusTabs').innerHTML=statuses.map(x=>`<button class="tab ${ui.status===x.value?'active':''}" data-status-tab="${esc(x.value)}">${x.label}</button>`).join('');byId('docFilter').value=ui.doc;byId('sortFilter').value=ui.sort;byId('searchBox').value=ui.term;let q=subset();if(ui.sort==='docs')q.sort((a,b)=>docNum(a)-docNum(b));if(ui.sort==='name')q.sort((a,b)=>a.name.localeCompare(b.name,'fa'));currentMatches=q;const pages=Math.max(1,Math.ceil(q.length/14));ui.page=Math.max(1,Math.min(ui.page,pages));const pageRows=q.slice((ui.page-1)*14,ui.page*14);byId('caseCountText').textContent=`${count(q.length)} پرونده مطابق فیلترهای انتخاب‌شده`;byId('caseRows').innerHTML=pageRows.map(x=>`<tr data-case="${esc(x.uid)}" tabindex="0"><td><div class="name">${esc(x.name)}</div><span class="tiny">${esc(x.executive)}</span></td><td><strong>${esc(x.region)}</strong><div class="tiny">${esc(x.city)||'—'}</div></td><td>${esc(x.area)||'—'}</td><td><span class="pill" data-status="${esc(x.status)}">${esc(x.status)}</span></td><td><div class="docmarks">${['identityDoc','storeDoc','pledgeDoc'].map((k,i)=>`<span class="docmark ${has(x[k])?'yes':''}" title="${['مدارک هویتی','مدارک فروشگاه','مدارک سند رهنی'][i]}">${has(x[k])?'✓':'—'}</span>`).join('')}</div></td><td style="max-width:220px"><div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${esc(x.notes)||'—'}</div></td><td><button class="actionlink" data-case="${esc(x.uid)}">مشاهده ←</button></td></tr>`).join('')||`<tr><td colspan="7" class="empty">پرونده‌ای مطابق فیلترهای فعلی پیدا نشد.</td></tr>`;byId('pageInfo').textContent=`صفحه ${count(ui.page)} از ${count(pages)} · ${count(q.length)} پرونده`;byId('prevPage').disabled=ui.page===1;byId('nextPage').disabled=ui.page===pages}
+function render(){filters();renderOverview();renderTable()}
+function detail(uid){const x=records.find(q=>q.uid===uid);if(!x)return;byId('drawerName').textContent=x.name||'پرونده فرانچایز';byId('drawerStatus').innerHTML=`<span class="pill" data-status="${esc(x.status)}">${esc(x.status)}</span>`;const phone=latin(x.phone);const phoneFull=phone.length===10?'0'+phone:phone;const items=[['مدیر اجرایی',x.executive],['منطقه',x.region],['مدیر منطقه',x.regionalManager],['شهر',x.city],['شماره تماس',phoneFull],['متراژ',x.area],['نوع مالکیت',x.ownership],['پیش‌بینی فروش',x.sales?count(Number(latin(x.sales))):'—'],['نحوه معرفی',x.referral||'—'],['کد ردیف منبع',`${x.executive} · ردیف ${x.sourceRow}`]];let mapUrl='';const raw=latin(x.location).replace(/\//g,',');const mm=raw.match(/^\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);if(mm){let la=Number(mm[1]),lo=Number(mm[2]);if(Math.abs(la)<=90&&Math.abs(lo)<=180)mapUrl=`https://www.google.com/maps?q=${encodeURIComponent(la+','+lo)}`}
+byId('drawerContent').innerHTML=`<div class="info-grid">${items.map(([label,value])=>`<div class="info"><small>${label}</small><span>${esc(value||'—')}</span></div>`).join('')}</div><div class="drawer-section">وضعیت مدارک پرونده</div><div class="documents">${[['identityDoc','مدارک هویتی'],['storeDoc','مدارک فروشگاه'],['pledgeDoc','مدارک سند رهنی']].map(([k,label])=>`<div class="document ${has(x[k])?'present':''}"><strong>${has(x[k])?'✓':'—'}</strong>${label}<div>${has(x[k])?'ثبت‌شده':'ثبت نشده'}</div></div>`).join('')}</div><div class="drawer-section">آخرین توضیحات ثبت‌شده</div><div class="note">${esc(x.notes||'توضیحی ثبت نشده است.')}</div><div class="drawer-actions">${/^0?\d{10,11}$/.test(phoneFull)?`<a href="tel:${esc(phoneFull)}">تماس با متقاضی</a>`:''}${mapUrl?`<a href="${esc(mapUrl)}" target="_blank" rel="noopener">مشاهده لوکیشن</a>`:''}</div><div class="footer">این گزارش فقط خواندنی است. برای تغییر اطلاعات، از شیت اصلی استفاده کنید.</div>`;byId('detailOverlay').classList.add('show');byId('detailOverlay').setAttribute('aria-hidden','false');byId('closeDrawer').focus()}
+function closeDetail(){byId('detailOverlay').classList.remove('show');byId('detailOverlay').setAttribute('aria-hidden','true')}
+function selectStatus(v){ui.status=ui.status===v?'':v;ui.page=1;renderOverview();renderTable();byId('cases').scrollIntoView({behavior:'smooth',block:'start'})}
+function onClick(e){const x=e.target.closest('[data-case]');if(x){detail(x.dataset.case);return}const r=e.target.closest('[data-region]');if(r){const st=r.hasAttribute('data-status')?r.dataset.status:null;ui.region=r.dataset.region;ui.status=st===null?'':st;ui.page=1;render();return}const s=e.target.closest('[data-status-tab]');if(s){ui.status=s.dataset.statusTab;ui.page=1;renderOverview();renderTable();return}const k=e.target.closest('[data-kpi-status],[data-status]');if(k){selectStatus(k.dataset.kpiStatus||k.dataset.status);return}}
+document.addEventListener('click',onClick);byId('execFilter').addEventListener('change',e=>{ui.executive=e.target.value;ui.region='';ui.status='';ui.page=1;render()});byId('regionFilter').addEventListener('change',e=>{ui.region=e.target.value;ui.status='';ui.page=1;render()});byId('searchBox').addEventListener('input',e=>{ui.term=e.target.value;ui.page=1;renderTable();byId('searchBox').focus()});byId('docFilter').addEventListener('change',e=>{ui.doc=e.target.value;ui.page=1;renderTable()});byId('sortFilter').addEventListener('change',e=>{ui.sort=e.target.value;ui.page=1;renderTable()});byId('prevPage').addEventListener('click',()=>{ui.page--;renderTable()});byId('nextPage').addEventListener('click',()=>{ui.page++;renderTable()});byId('closeDrawer').addEventListener('click',closeDetail);byId('closeShade').addEventListener('click',closeDetail);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();if((e.key==='Enter'||e.key===' ')&&e.target.closest('tr[data-case]')){e.preventDefault();detail(e.target.closest('tr[data-case]').dataset.case)}});
+byId('exportBtn').addEventListener('click',()=>{const cols=[['executive','مدیر اجرایی'],['region','منطقه'],['regionalManager','مدیر منطقه'],['name','نام متقاضی'],['phone','شماره تماس'],['city','شهر'],['area','متراژ'],['ownership','مالکیت'],['status','وضعیت'],['identityDoc','مدارک هویتی'],['storeDoc','مدارک فروشگاه'],['pledgeDoc','مدارک سند رهنی'],['notes','توضیحات']];const escCsv=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const csv='\ufeff'+[cols.map(q=>escCsv(q[1])).join(','),...currentMatches.map(r=>cols.map(q=>escCsv(r[q[0]])).join(','))].join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='franchise_dashboard.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)});
+// Source: original Google Sheet, all five tabs (one per executive). No Apps Script, login screen or form for dashboard users.
+// Request every tab with JSONP through Google's Visualization API. Keep the last complete dataset on transient errors.
+const FIELD_KEYS=['name','phone','area','ownership','region','regionalManager','city','sales','location','identityDoc','storeDoc','pledgeDoc','secondHand','referral','notes','status'];
+function gvizCell(x){
+  if(x==null)return '';
+  const value=x.f??x.v??'';
+  if(typeof value==='string' && /^Date\(/.test(value))return value;
+  return String(value);
 }
-
-var rows2 = FALLBACK_ROWS2.slice();
-
-function toNum(v){
-  var n = parseFloat(String(v==null?'':v).replace(/[,٪%]/g,'').trim());
-  return isNaN(n) ? 0 : n;
-}
-function toBool(v){
-  var s = String(v==null?'':v).trim().toLowerCase();
-  if(!s) return false;
-  return ['true','1','بله','yes','ok','✓','کمپین','دارد','y'].indexOf(s) > -1;
-}
-
-/* دیتای پشتیبان (fallback) — اگه اتصال به گوگل شیت برقرار نشد از همین استفاده می‌شه */
-var FALLBACK_ROWS = [
-  {region:"کرمانشاه", manager:"یزدان مرزبان", exec:"مجید محسنی", calls:81, pending:16, docs:6, toKhordad:4, opened:3, summerGoal:10, summerContracts:3, achievement:30, total:7, campaign:true},
-  {region:"جنوب آذربایجان", manager:"رضا وجدان", exec:"بهمن هم مسلک", calls:46, pending:3, docs:6, toKhordad:0, opened:0, summerGoal:10, summerContracts:3, achievement:30, total:3, campaign:true},
-  {region:"شرق فارس", manager:"مرتضی بهادری", exec:"عماد حسینی نسب", calls:66, pending:15, docs:5, toKhordad:3, opened:1, summerGoal:5, summerContracts:1, achievement:20, total:4, campaign:false},
-  {region:"شرق گیلان", manager:"بهنام پاشایی", exec:"بهمن هم مسلک", calls:34, pending:2, docs:0, toKhordad:0, opened:0, summerGoal:5, summerContracts:1, achievement:20, total:1, campaign:false},
-  {region:"شرق خوزستان", manager:"ساسان علی محمدی", exec:"مجید محسنی", calls:65, pending:1, docs:7, toKhordad:1, opened:0, summerGoal:8, summerContracts:1, achievement:13, total:2, campaign:true},
-  {region:"سیستان و بلوچستان", manager:"حسین اثنی عشری", exec:"عماد حسینی نسب", calls:63, pending:9, docs:7, toKhordad:7, opened:3, summerGoal:10, summerContracts:1, achievement:10, total:8, campaign:true},
-  {region:"غرب فارس", manager:"مجتبی عابد", exec:"عماد حسینی نسب", calls:66, pending:8, docs:6, toKhordad:5, opened:3, summerGoal:10, summerContracts:1, achievement:10, total:6, campaign:true},
-  {region:"غرب اصفهان", manager:"مسعود بهنان", exec:"میثم محالی", calls:56, pending:12, docs:2, toKhordad:1, opened:1, summerGoal:10, summerContracts:1, achievement:10, total:2, campaign:true},
-  {region:"آذربایجان غربی", manager:"صادق سعیدی", exec:"بهمن هم مسلک", calls:46, pending:4, docs:3, toKhordad:3, opened:1, summerGoal:10, summerContracts:1, achievement:10, total:4, campaign:true},
-  {region:"همدان", manager:"میلاد قدری", exec:"مجید محسنی", calls:22, pending:2, docs:2, toKhordad:2, opened:1, summerGoal:10, summerContracts:0, achievement:0, total:2, campaign:true},
-  {region:"آذربایجان شرقی", manager:"علی عزت شعار", exec:"بهمن هم مسلک", calls:80, pending:2, docs:5, toKhordad:1, opened:0, summerGoal:7, summerContracts:1, achievement:14, total:2, campaign:false},
-  {region:"خراسان", manager:"مهیار کلیلی", exec:"میثم محالی", calls:99, pending:2, docs:6, toKhordad:4, opened:2, summerGoal:10, summerContracts:0, achievement:0, total:4, campaign:true},
-  {region:"کرمان", manager:"مصطفی اتحاد", exec:"عماد حسینی نسب", calls:77, pending:7, docs:5, toKhordad:2, opened:2, summerGoal:5, summerContracts:0, achievement:0, total:2, campaign:false},
-  {region:"ری/سمنان", manager:"امید پوررجبی", exec:"فرید نوری", calls:33, pending:2, docs:7, toKhordad:1, opened:1, summerGoal:10, summerContracts:0, achievement:0, total:1, campaign:false},
-  {region:"هرمزگان و جنوب کرمان", manager:"سید امین حسن زاده", exec:"عماد حسینی نسب", calls:25, pending:2, docs:4, toKhordad:3, opened:1, summerGoal:10, summerContracts:0, achievement:0, total:3, campaign:true},
-  {region:"اسلامشهر/ساوه", manager:"مهدی دشت افکن", exec:"فرید نوری", calls:147, pending:1, docs:2, toKhordad:1, opened:1, summerGoal:6, summerContracts:0, achievement:0, total:1, campaign:false},
-  {region:"مازندران", manager:"حجت اسگندری", exec:"میثم محالی", calls:9, pending:4, docs:2, toKhordad:3, opened:2, summerGoal:10, summerContracts:0, achievement:0, total:3, campaign:true},
-  {region:"غرب خوزستان", manager:"رضا بختیاریان", exec:"مجید محسنی", calls:65, pending:6, docs:2, toKhordad:4, opened:1, summerGoal:8, summerContracts:0, achievement:0, total:4, campaign:true},
-  {region:"شرق اصفهان", manager:"رضا منجزی وند", exec:"میثم محالی", calls:56, pending:2, docs:2, toKhordad:0, opened:0, summerGoal:5, summerContracts:0, achievement:0, total:0, campaign:false},
-  {region:"غرب گیلان", manager:"غرب گیلان", exec:"بهمن هم مسلک", calls:32, pending:0, docs:0, toKhordad:0, opened:0, summerGoal:5, summerContracts:0, achievement:0, total:0, campaign:false},
-  {region:"غرب تهران", manager:"محمد جمشیدی", exec:"فرید نوری", calls:0, pending:1, docs:0, toKhordad:0, opened:0, summerGoal:2, summerContracts:0, achievement:0, total:0, campaign:false},
-  {region:"البرز/الوند", manager:"کیوان سلمان زاده", exec:"فرید نوری", calls:50, pending:6, docs:0, toKhordad:0, opened:0, summerGoal:6, summerContracts:0, achievement:0, total:0, campaign:false},
-  {region:"شرق تهران", manager:"رضا جعفری", exec:"فرید نوری", calls:0, pending:3, docs:0, toKhordad:0, opened:0, summerGoal:3, summerContracts:0, achievement:0, total:0, campaign:false},
-  {region:"ایلام/لرستان", manager:"علی فارسی", exec:"مجید محسنی", calls:60, pending:3, docs:5, toKhordad:1, opened:1, summerGoal:5, summerContracts:1, achievement:20, total:2, campaign:true}
-];
-
-function mapRowsToData(csvRows){
-  if(!csvRows || !csvRows.length) throw new Error('empty');
-  var out = [];
-  for(var i=1;i<csvRows.length;i++){ // ردیف اول = هدر، رد می‌شود
-    var r = csvRows[i];
-    if(!r || !r[COL.region] || !String(r[COL.region]).trim()) continue;
-    out.push({
-      region: String(r[COL.region]).trim(),
-      manager: String(r[COL.manager]||'').trim(),
-      exec: String(r[COL.exec]||'').trim(),
-      calls: toNum(r[COL.calls]),
-      pending: toNum(r[COL.pending]),
-      docs: toNum(r[COL.docs]),
-      toKhordad: toNum(r[COL.toKhordad]),
-      opened: toNum(r[COL.opened]),
-      summerGoal: toNum(r[COL.summerGoal]),
-      summerContracts: toNum(r[COL.summerContracts]),
-      achievement: toNum(r[COL.achievement]),
-      total: toNum(r[COL.total]),
-      campaign: toBool(r[COL.campaign])
-    });
-  }
-  if(!out.length) throw new Error('no rows');
-  return out;
-}
-
-function setSyncStatus(msg, ok){
-  var el = document.getElementById('syncStatus');
-  if(!el) return;
-  el.textContent = msg;
-  el.style.color = ok===false ? '#e05f5f' : (ok===true ? '#1fa971' : '#dcb24f');
-}
-
-var rows = FALLBACK_ROWS.slice();
-var TOTAL, overallAchievement, campaignCount, conversionRate;
-
-function sum(arr, key){ var s=0; for(var i=0;i<arr.length;i++){ s+=arr[i][key]; } return s; }
-
-function recomputeTotals(){
-  TOTAL = {
-    calls:sum(rows,'calls'), pending:sum(rows,'pending'), docs:sum(rows,'docs'),
-    toKhordad:sum(rows,'toKhordad'), opened:sum(rows,'opened'),
-    summerGoal:sum(rows,'summerGoal'), summerContracts:sum(rows,'summerContracts'),
-    total:sum(rows,'total')
-  };
-  overallAchievement = TOTAL.summerGoal ? Math.round(TOTAL.summerContracts/TOTAL.summerGoal*100) : 0;
-  campaignCount = rows.filter(function(r){return r.campaign;}).length;
-  conversionRate = TOTAL.calls ? (TOTAL.total/TOTAL.calls*100).toFixed(1) : '0.0';
-
-  var regionCountEl = document.getElementById('metaRegionCount');
-  if(regionCountEl) regionCountEl.textContent = rows.length + ' منطقه';
-  var campCountEl = document.getElementById('metaCampCount');
-  if(campCountEl) campCountEl.textContent = campaignCount + ' منطقه';
-  var campSubEl = document.getElementById('campCardSub');
-  if(campSubEl) campSubEl.textContent = campaignCount + ' منطقهٔ کمپین — قرارداد تابستان نسبت به هدف تابستان';
-  var tableRowBadge = document.getElementById('tableRowBadge');
-  if(tableRowBadge) tableRowBadge.textContent = rows.length + ' ردیف';
-}
-
-var AUTO_REFRESH_MS = 5*60*1000; // هر ۵ دقیقه یک‌بار خودکار بروزرسانی می‌شود
-
-function refreshAllViews(){
-  recomputeTotals();
-  try{ renderKPI(); }catch(e){ console.error('KPI render error', e); }
-  try{ renderContractBars(); }catch(e){ console.error('Contract bars render error', e); }
-  try{ renderCampaignList(); }catch(e){ console.error('Campaign list render error', e); }
-  try{ renderManagers(); }catch(e){ console.error('Managers render error', e); }
-  try{ renderTable(); }catch(e){ console.error('Table render error', e); }
-}
-
-function loadDataFromSheet(manual){
-  setSyncStatus(manual ? 'در حال بروزرسانی…' : 'در حال اتصال…');
-  var bust = (SHEET_CSV_URL.indexOf('?')>-1 ? '&' : '?') + 'cachebust=' + Date.now();
-  fetch(SHEET_CSV_URL + bust, {cache:'no-store'})
-    .then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.text(); })
-    .then(function(csvText){
-      var parsed = Papa.parse(csvText.trim(), {skipEmptyLines:true});
-      rows = mapRowsToData(parsed.data);
-      refreshAllViews();
-      var now = new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
-      setSyncStatus('متصل ✓ ('+now+')', true);
-    })
-    .catch(function(err){
-      console.error('خطا در دریافت گوگل شیت:', err);
-      if(!rows || !rows.length){ rows = FALLBACK_ROWS.slice(); refreshAllViews(); }
-      setSyncStatus('اتصال ناموفق — آخرین داده نمایش داده می‌شود', false);
-    });
-}
-
-var ICONS = {
-  phone:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
-  pin:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-  file:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
-  check:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>',
-  target:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>'
-};
-
-/* ============ KPI CARDS ============ */
-function renderKPI(){
-  var el = document.getElementById('kpiGrid');
-  if(!el) return;
-  var kpis = [
-    {icon:ICONS.phone, label:"مجموع تماس‌های گرفته‌شده", value:TOTAL.calls, foot:"از ابتدای سال تا کنون", hero:false},
-    {icon:ICONS.pin, label:"لوکیشن در انتظار بررسی مدیر منطقه", value:TOTAL.pending, foot:"در انتظار تعیین تکلیف", hero:false},
-    {icon:ICONS.file, label:"در حال تکمیل مدارک", value:TOTAL.docs, foot:"تأییدشده، پیش از قرارداد", hero:false},
-    {icon:ICONS.check, label:"مجموع قرارداد فرانچایز", value:TOTAL.total, foot:"نرخ تبدیل تماس به قرارداد: "+conversionRate+"٪", hero:true},
-    {icon:ICONS.target, label:"تحقق هدف قراردادی تابستان", value:overallAchievement+"%", foot:TOTAL.summerContracts+" از "+TOTAL.summerGoal+" قرارداد هدف در "+campaignCount+" منطقهٔ کمپین", hero:false}
-  ];
-  var html = '';
-  for(var i=0;i<kpis.length;i++){
-    var k = kpis[i];
-    html += '<div class="kpi '+(k.hero?'hero':'')+'">'+
-      '<div class="corner-ring"></div>'+
-      '<div class="icon">'+k.icon+'</div>'+
-      '<div class="label">'+k.label+'</div>'+
-      '<div class="value num">'+k.value+'</div>'+
-      '<div class="foot">'+k.foot+'</div>'+
-    '</div>';
-  }
-  el.innerHTML = html;
-}
-
-/* ============ CONTRACT BAR LIST ============ */
-function renderContractBars(){
-  var el = document.getElementById('cbarList');
-  if(!el) return;
-  var sorted = rows.slice().sort(function(a,b){ return b.total - a.total; });
-  var max = sorted[0].total || 1;
-  var html = '';
-  for(var i=0;i<sorted.length;i++){
-    var r = sorted[i];
-    var pct = Math.max(Math.round(r.total/max*100), r.total>0?4:0);
-    html += '<div class="cbar-row">'+
-      '<div class="cbar-name">'+r.region+'</div>'+
-      '<div class="cbar-track"><div class="cbar-fill '+(r.campaign?'is-camp':'')+'" style="width:'+pct+'%"></div></div>'+
-      '<div class="cbar-val num">'+r.total+'</div>'+
-    '</div>';
-  }
-  el.innerHTML = html;
-}
-
-/* ============ CAMPAIGN LIST ============ */
-function renderCampaignList(){
-  var el = document.getElementById('campList');
-  if(!el) return;
-  var camp = rows.filter(function(r){return r.campaign;}).sort(function(a,b){return b.achievement-a.achievement;});
-  var html = '';
-  for(var i=0;i<camp.length;i++){
-    var r = camp[i];
-    var cls = r.achievement>=25 ? 'high' : (r.achievement>=10 ? 'mid' : 'low');
-    html += '<div class="camp-item">'+
-      '<div class="camp-top">'+
-        '<span class="cname">'+r.region+'</span>'+
-        '<span class="cratio num">'+r.summerContracts+' / '+r.summerGoal+'</span>'+
-        '<span class="cpct pct-'+cls+' num">'+r.achievement+'٪</span>'+
-      '</div>'+
-      '<div class="bar-track"><div class="bar-fill fill-'+cls+'" style="width:'+Math.max(r.achievement,3)+'%"></div></div>'+
-    '</div>';
-  }
-  el.innerHTML = html;
-}
-
-/* ============ EXEC MANAGER CARDS ============ */
-var execNames = [];
-function renderManagers(){
-  var el = document.getElementById('mgrGrid');
-  if(!el) return;
-  var seen = {};
-  execNames = [];
-  for(var i=0;i<rows.length;i++){
-    if(!seen[rows[i].exec]){ seen[rows[i].exec]=true; execNames.push(rows[i].exec); }
-  }
-  var mgrData = execNames.map(function(name){
-    var rs = rows.filter(function(r){return r.exec===name;});
-    return {
-      name:name,
-      regions: rs.length,
-      calls: sum(rs,'calls'),
-      total: sum(rs,'total'),
-      initials: name.slice(0,1)
-    };
-  }).sort(function(a,b){return b.total-a.total;});
-
-  var html = '';
-  for(var j=0;j<mgrData.length;j++){
-    var m = mgrData[j];
-    html += '<div class="mgr-card">'+
-      '<div class="avatar">'+m.name+'</div>'+
-      '<div class="mrole">'+m.regions+' منطقه تحت پوشش</div>'+
-      '<div class="mgr-stats">'+
-        '<div class="mstat"><div class="mv num">'+m.calls+'</div><div class="ml">تماس</div></div>'+
-        '<div class="mstat gold"><div class="mv num">'+m.total+'</div><div class="ml">قرارداد</div></div>'+
-      '</div>'+
-    '</div>';
-  }
-  el.innerHTML = html;
-
-  var mgrFilterEl = document.getElementById('mgrFilter');
-  if(mgrFilterEl){
-    var prevVal = mgrFilterEl.value;
-    mgrFilterEl.innerHTML = '<option value="all">همهٔ مدیران اجرایی</option>';
-    for(var k=0;k<execNames.length;k++){
-      var opt = document.createElement('option');
-      opt.value = execNames[k];
-      opt.textContent = execNames[k];
-      mgrFilterEl.appendChild(opt);
+function loadTab(name,index){return new Promise((resolve,reject)=>{
+  const cb='__franchise_'+Date.now().toString(36)+'_'+index+'_'+Math.random().toString(36).slice(2,7);
+  const script=document.createElement('script');
+  let done=false;
+  const finish=(error,payload)=>{if(done)return;done=true;clearTimeout(timer);script.remove();try{delete window[cb]}catch(e){window[cb]=undefined}error?reject(error):resolve(payload)};
+  const timer=setTimeout(()=>finish(new Error('درخواست به پایان رسید: '+name)),18000);
+  window[cb]=resp=>{
+    if(!resp || resp.status!=='ok' || !resp.table || !Array.isArray(resp.table.rows)){
+      const why=(resp&&resp.errors||[]).map(v=>v.message||v.reason||'').join(' / ');
+      return finish(new Error('دسترسی به شیت '+name+' ناموفق: '+why));
     }
-    if(execNames.indexOf(prevVal) > -1) mgrFilterEl.value = prevVal;
-  }
-}
-
-/* ============ PENDING > 1 WEEK TABLE (sheet2) ============ */
-function renderPendingWeekTable(){
-  var body = document.getElementById('pendWeekBody');
-  var foot = document.getElementById('pendWeekFoot');
-  var badge = document.getElementById('pendWeekBadge');
-  if(!body || !foot) return;
-
-  var data = rows2.slice().sort(function(a,b){ return b.pendWeek - a.pendWeek; });
-
-  var html = '';
-  for(var i=0;i<data.length;i++){
-    var r = data[i];
-    var cls = r.pendWeek>=8 ? 'pw-high' : (r.pendWeek>=3 ? 'pw-mid' : 'pw-zero');
-    var rowCls = r.pendWeek>=8 ? 'row-high' : '';
-    html += '<tr class="'+rowCls+'">'+
-      '<td>'+r.region+'</td>'+
-      '<td>'+r.manager+'</td>'+
-      '<td>'+r.exec+'</td>'+
-      '<td><span class="pw-count num '+cls+'">'+r.pendWeek+'</span></td>'+
-    '</tr>';
-  }
-  body.innerHTML = html || '<tr><td colspan="4" style="padding:30px; color:var(--ink-500);">داده‌ای موجود نیست</td></tr>';
-
-  var totalPend = sum(data,'pendWeek');
-  foot.innerHTML =
-    '<td>جمع ('+data.length+' منطقه)</td>'+
-    '<td></td><td></td>'+
-    '<td class="num">'+totalPend+'</td>';
-
-  if(badge) badge.textContent = totalPend + ' شعبه معلق بیش از ۱ هفته';
-}
-
-function loadDataFromSheet2(){
-  if(!SHEET2_CSV_URL || SHEET2_CSV_URL.indexOf('PASTE_') === 0){
-    renderPendingWeekTable(); // از fallback استفاده می‌شود تا لینک واقعی جایگزین شود
-    return;
-  }
-  var bust = (SHEET2_CSV_URL.indexOf('?')>-1 ? '&' : '?') + 'cachebust=' + Date.now();
-  fetch(SHEET2_CSV_URL + bust, {cache:'no-store'})
-    .then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.text(); })
-    .then(function(csvText){
-      var parsed = Papa.parse(csvText.trim(), {skipEmptyLines:true});
-      rows2 = mapRowsToData2(parsed.data);
-      renderPendingWeekTable();
-    })
-    .catch(function(err){
-      console.error('خطا در دریافت شیت ۲:', err);
-      if(!rows2 || !rows2.length){ rows2 = FALLBACK_ROWS2.slice(); }
-      renderPendingWeekTable();
+    const rows=resp.table.rows.map(obj=>{
+      const vals=(obj.c||[]).map(gvizCell);
+      while(vals.length<FIELD_KEYS.length)vals.push('');
+      return vals;
     });
-}
-
-/* ============ TABLE ============ */
-var sortKey = 'total', sortDir = -1, activeFilter = 'all', activeMgr = 'all', searchTerm = '';
-
-function renderTable(){
-  var body = document.getElementById('tableBody');
-  var foot = document.getElementById('tableFoot');
-  if(!body || !foot) return;
-
-  var data = rows.filter(function(r){
-    if(activeFilter==='campaign' && !r.campaign) return false;
-    if(activeMgr!=='all' && r.exec!==activeMgr) return false;
-    if(searchTerm && r.region.indexOf(searchTerm)===-1 && r.manager.indexOf(searchTerm)===-1) return false;
-    return true;
-  });
-
-  data.sort(function(a,b){
-    var va=a[sortKey], vb=b[sortKey];
-    if(typeof va==='string'){ return va.localeCompare(vb,'fa')*sortDir; }
-    return (va-vb)*sortDir;
-  });
-
-  var rowsHtml = '';
-  for(var i=0;i<data.length;i++){
-    var r = data[i];
-    rowsHtml += '<tr class="'+(r.campaign?'is-campaign':'')+'">'+
-      '<td>'+r.region+'<span class="name-manager">'+r.manager+' · '+r.exec+'</span></td>'+
-      '<td class="num">'+r.calls+'</td>'+
-      '<td class="num">'+r.pending+'</td>'+
-      '<td class="num">'+r.docs+'</td>'+
-      '<td class="num td-contract">'+r.toKhordad+'</td>'+
-      '<td class="num">'+r.opened+'</td>'+
-      '<td class="num">'+r.summerGoal+'</td>'+
-      '<td class="num td-contract">'+r.summerContracts+'</td>'+
-      '<td class="num">'+r.achievement+'٪</td>'+
-      '<td class="num td-contract">'+r.total+'</td>'+
-      '<td>'+(r.campaign ? '<span class="pill ok">کمپین</span>' : '<span class="pill no">—</span>')+'</td>'+
-    '</tr>';
-  }
-  body.innerHTML = rowsHtml || '<tr><td colspan="11" style="padding:30px; color:var(--ink-500);">نتیجه‌ای یافت نشد</td></tr>';
-
-  var ft = {
-    calls:sum(data,'calls'), pending:sum(data,'pending'), docs:sum(data,'docs'),
-    toKhordad:sum(data,'toKhordad'), opened:sum(data,'opened'),
-    summerGoal:sum(data,'summerGoal'), summerContracts:sum(data,'summerContracts'),
-    total:sum(data,'total')
+    finish(null,rows);
   };
-  var ftAch = ft.summerGoal ? Math.round(ft.summerContracts/ft.summerGoal*100) : 0;
-  foot.innerHTML =
-    '<td>جمع ('+data.length+' منطقه)</td>'+
-    '<td class="num">'+ft.calls+'</td>'+
-    '<td class="num">'+ft.pending+'</td>'+
-    '<td class="num">'+ft.docs+'</td>'+
-    '<td class="num">'+ft.toKhordad+'</td>'+
-    '<td class="num">'+ft.opened+'</td>'+
-    '<td class="num">'+ft.summerGoal+'</td>'+
-    '<td class="num">'+ft.summerContracts+'</td>'+
-    '<td class="num">'+ftAch+'٪</td>'+
-    '<td class="num">'+ft.total+'</td>'+
-    '<td></td>';
+  script.onerror=()=>finish(new Error('شبکه یا دسترسی گوگل‌شیت: '+name));
+  const params=new URLSearchParams({
+    sheet:name,
+    headers:'0',
+    tq:'select A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P',
+    tqx:'out:json;responseHandler:'+cb,
+    _ts:String(Date.now())
+  });
+  script.src='https://docs.google.com/spreadsheets/d/'+encodeURIComponent(CONFIG.liveSheetId)+'/gviz/tq?'+params.toString();
+  document.head.appendChild(script);
+})}
+function asRows(tabData,name,index){
+  const result=[];
+  tabData.forEach((r,idx)=>{
+    const vals=FIELD_KEYS.map((_,i)=>String(r[i]??'').trim());
+    if(!norm(vals[0]) || !norm(vals[4]) || !norm(vals[15]))return;
+    if(norm(vals[0]).includes('نام') && norm(vals[4]).includes('منطقه'))return;
+    const rec={};FIELD_KEYS.forEach((key,i)=>rec[key]=vals[i]);
+    rec.executive=name;rec.sourceRow=idx+1;rec.uid=index+'-'+(idx+1);
+    result.push(rec);
+  });
+  return result;
 }
-
-function bindEvents(){
-  var ths = document.querySelectorAll('#dataTable thead th');
-  for(var i=0;i<ths.length;i++){
-    ths[i].addEventListener('click', function(){
-      var key = this.getAttribute('data-key');
-      if(sortKey===key){ sortDir*=-1; } else { sortKey=key; sortDir=-1; }
-      renderTable();
-    });
-  }
-  var chips = document.querySelectorAll('#campaignChips .chip');
-  for(var j=0;j<chips.length;j++){
-    chips[j].addEventListener('click', function(){
-      for(var c=0;c<chips.length;c++){ chips[c].classList.remove('active'); }
-      this.classList.add('active');
-      activeFilter = this.getAttribute('data-filter');
-      renderTable();
-    });
-  }
-  var mgrFilterEl = document.getElementById('mgrFilter');
-  if(mgrFilterEl){
-    mgrFilterEl.addEventListener('change', function(e){ activeMgr = e.target.value; renderTable(); });
-  }
-  var searchEl = document.getElementById('searchInput');
-  if(searchEl){
-    searchEl.addEventListener('input', function(e){ searchTerm = e.target.value.trim(); renderTable(); });
-  }
+function updateSyncMessage(connected,label){
+  byId('syncDot').classList.toggle('live',connected);
+  byId('syncText').textContent=label;
+  byId('syncFoot').textContent=connected?' · آخرین دریافت '+new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'}):' · اطلاعات ذخیره‌شده نمایش داده می‌شود؛ آخرین تغییرات هنوز تأیید نشده است.';
 }
-
-/* ============ INIT ============ */
-function init(){
-  try{ bindEvents(); }catch(e){ console.error('Bind events error', e); }
-  loadDataFromSheet();
-  loadDataFromSheet2();
-  setInterval(loadDataFromSheet, AUTO_REFRESH_MS);
-  setInterval(loadDataFromSheet2, AUTO_REFRESH_MS);
+async function refresh(){
+  if(loading)return;
+  loading=true;
+  byId('syncText').textContent='در حال به‌روزرسانی...';
+  try{
+    const sources=await Promise.all(TAB_NAMES.map((name,i)=>loadTab(name,i+1)));
+    const parsed=sources.map((rows,i)=>asRows(rows,TAB_NAMES[i],i+1));
+    // Never replace a complete dashboard with an accidentally incomplete subset.
+    if(parsed.some((rows,i)=>rows.length===0))throw new Error('یک یا چند شیت بدون داده معتبر برگشتند');
+    const loaded=parsed.flat();
+    if(loaded.length<20)throw new Error('پاسخ گوگل‌شیت ناقص است');
+    // GViz may return null for minority-type cells (e.g. phone numbers). Restore known cell values only
+    // for the very same unchanged identifying record, never for a different/new applicant.
+    const before=new Map(records.map(o=>[o.uid,o]));
+    for(const item of loaded){
+      const last=before.get(item.uid);
+      if(!last)continue;
+      if(norm(last.name)!==norm(item.name) || norm(last.region)!==norm(item.region))continue;
+      for(const key of ['phone','area','ownership','regionalManager','city','sales','location','identityDoc','storeDoc','pledgeDoc','secondHand','referral','notes']){
+        if(!item[key]&&last[key])item[key]=last[key];
+      }
+    }
+    records=loaded;
+    updateSyncMessage(true,'متصل به گوگل‌شیت');
+    render();
+  }catch(error){
+    updateSyncMessage(false,'آخرین اطلاعات ثبت‌شده');
+    console.warn('Franchise dashboard: live refresh failed.',error);
+  }finally{loading=false}
 }
-
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
-
-})();
+byId('reloadBtn').addEventListener('click',refresh);render();refresh();setInterval(refresh,CONFIG.refreshMs);
 </script>
-</body>
-</html>
+</body></html>
